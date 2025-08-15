@@ -25,6 +25,7 @@ import {
   Mail
 } from "lucide-react";
 import { mockClients } from "@/data/mockData";
+import CreateClientModal from "@/components/modals/CreateClientModal";
 
 const Clients = () => {
   const getRatingStars = (rating: number) => {
@@ -69,10 +70,7 @@ const Clients = () => {
           <Button variant="outline" size="icon">
             <Filter className="h-4 w-4" />
           </Button>
-          <Button className="btn-gradient">
-            <Plus className="h-4 w-4 mr-2" />
-            Добавить клиента
-          </Button>
+          <CreateClientModal />
         </div>
       </div>
 

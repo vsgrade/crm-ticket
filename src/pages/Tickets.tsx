@@ -25,9 +25,13 @@ import {
   Paperclip
 } from "lucide-react";
 import { mockTickets, mockClients, mockEmployees } from "@/data/mockData";
+import CreateTicketModal from "@/components/modals/CreateTicketModal";
+import TicketDetailModal from "@/components/modals/TicketDetailModal";
 
 const Tickets = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+  const [ticketDetailOpen, setTicketDetailOpen] = useState(false);
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -135,10 +139,7 @@ const Tickets = () => {
           <Button variant="outline" size="icon">
             <Filter className="h-4 w-4" />
           </Button>
-          <Button className="btn-gradient">
-            <Plus className="h-4 w-4 mr-2" />
-            Создать тикет
-          </Button>
+          <CreateTicketModal />
         </div>
       </div>
 
@@ -290,7 +291,15 @@ const Tickets = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setSelectedTicket(ticket.id);
+                          setTicketDetailOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -301,6 +310,13 @@ const Tickets = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Модальное окно детализации тикета */}
+      <TicketDetailModal 
+        open={ticketDetailOpen}
+        onOpenChange={setTicketDetailOpen}
+        ticketId={selectedTicket || undefined}
+      />
     </div>
   );
 };
