@@ -11,6 +11,11 @@ import Clients from "./pages/Clients";
 import Staff from "./pages/Staff";
 import Departments from "./pages/Departments";
 import Knowledge from "./pages/Knowledge";
+import Settings from "./pages/Settings";
+import SLA from "./pages/SLA";
+import Reports from "./pages/Reports";
+import Performance from "./pages/Performance";
+import APIDocumentation from "./pages/APIDocumentation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +35,11 @@ const App = () => (
             <Route path="/departments" element={<Departments />} />
             <Route path="/knowledge" element={<Knowledge />} />
             <Route path="/checklist" element={<Checklist />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/sla" element={<SLA />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/performance" element={<Performance />} />
+            <Route path="/integrations/api" element={<APIDocumentation />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
