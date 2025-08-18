@@ -16,6 +16,15 @@ import SLA from "./pages/SLA";
 import Reports from "./pages/Reports";
 import Performance from "./pages/Performance";
 import APIDocumentation from "./pages/APIDocumentation";
+import AI from "./pages/AI";
+import Macros from "./pages/Macros";
+import Templates from "./pages/Templates";
+import Escalation from "./pages/Escalation";
+import Archive from "./pages/Archive";
+import Calendar from "./pages/Calendar";
+import Messengers from "./pages/integrations/Messengers";
+import Email from "./pages/integrations/Email";
+import SMS from "./pages/integrations/SMS";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +49,15 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="/performance" element={<Performance />} />
             <Route path="/integrations/api" element={<APIDocumentation />} />
+            <Route path="/ai" element={<AI />} />
+            <Route path="/macros" element={<Macros />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/escalation" element={<Escalation />} />
+            <Route path="/archive" element={<Archive />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/integrations/messengers" element={<Messengers />} />
+            <Route path="/integrations/email" element={<Email />} />
+            <Route path="/integrations/sms" element={<SMS />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
