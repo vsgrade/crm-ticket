@@ -27,11 +27,13 @@ import {
 import { mockTickets, mockClients, mockEmployees } from "@/data/mockData";
 import CreateTicketModal from "@/components/modals/CreateTicketModal";
 import TicketDetailModal from "@/components/modals/TicketDetailModal";
+import FullPageTicketModal from "@/components/modals/FullPageTicketModal";
 
 const Tickets = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [ticketDetailOpen, setTicketDetailOpen] = useState(false);
+  const [fullPageOpen, setFullPageOpen] = useState(false);
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -220,7 +222,15 @@ const Tickets = () => {
                 {mockTickets.map((ticket) => (
                   <TableRow key={ticket.id} className="ticket-table-row">
                     <TableCell className="font-mono text-sm">
-                      {ticket.id}
+                      <button 
+                        onClick={() => {
+                          setSelectedTicket(ticket.id);
+                          setFullPageOpen(true);
+                        }}
+                        className="hover:text-primary hover:underline cursor-pointer"
+                      >
+                        {ticket.id}
+                      </button>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-start gap-2">
@@ -311,10 +321,16 @@ const Tickets = () => {
         </CardContent>
       </Card>
 
-      {/* Модальное окно детализации тикета */}
+      {/* Модальные окна */}
       <TicketDetailModal 
         open={ticketDetailOpen}
         onOpenChange={setTicketDetailOpen}
+        ticketId={selectedTicket || undefined}
+      />
+
+      <FullPageTicketModal 
+        open={fullPageOpen}
+        onOpenChange={setFullPageOpen}
         ticketId={selectedTicket || undefined}
       />
     </div>

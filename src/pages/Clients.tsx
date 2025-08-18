@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,8 +27,12 @@ import {
 } from "lucide-react";
 import { mockClients } from "@/data/mockData";
 import CreateClientModal from "@/components/modals/CreateClientModal";
+import FullPageClientModal from "@/components/modals/FullPageClientModal";
 
 const Clients = () => {
+  const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [clientModalOpen, setClientModalOpen] = useState(false);
+
   const getRatingStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star 
@@ -186,7 +191,15 @@ const Clients = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{client.name}</div>
+                          <button 
+                            onClick={() => {
+                              setSelectedClient(client.id);
+                              setClientModalOpen(true);
+                            }}
+                            className="font-medium hover:text-primary hover:underline cursor-pointer text-left"
+                          >
+                            {client.name}
+                          </button>
                           <div className="text-sm text-muted-foreground flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {client.location}
@@ -258,7 +271,15 @@ const Clients = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setSelectedClient(client.id);
+                          setClientModalOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -269,6 +290,13 @@ const Clients = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Модальное окно клиента */}
+      <FullPageClientModal 
+        open={clientModalOpen}
+        onOpenChange={setClientModalOpen}
+        clientId={selectedClient || undefined}
+      />
     </div>
   );
 };

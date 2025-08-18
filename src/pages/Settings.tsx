@@ -188,6 +188,129 @@ const Settings = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Подключение к базе данных MySQL
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="mysql-host">Хост</Label>
+                      <Input
+                        id="mysql-host"
+                        placeholder="localhost или IP адрес"
+                        defaultValue="localhost"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql-port">Порт</Label>
+                      <Input
+                        id="mysql-port"
+                        placeholder="3306"
+                        defaultValue="3306"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql-database">База данных</Label>
+                      <Input
+                        id="mysql-database"
+                        placeholder="Название базы данных"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql-username">Имя пользователя</Label>
+                      <Input
+                        id="mysql-username"
+                        placeholder="root"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql-password">Пароль</Label>
+                      <Input
+                        id="mysql-password"
+                        type="password"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mysql-charset">Кодировка</Label>
+                      <Select defaultValue="utf8mb4">
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="utf8mb4">UTF8MB4</SelectItem>
+                          <SelectItem value="utf8">UTF8</SelectItem>
+                          <SelectItem value="latin1">Latin1</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="mysql-ssl">SSL соединение</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Использовать защищенное SSL соединение
+                        </p>
+                      </div>
+                      <Switch id="mysql-ssl" />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="mysql-pool">Пул соединений</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Максимальное количество одновременных соединений
+                        </p>
+                      </div>
+                      <Input
+                        id="mysql-pool"
+                        className="w-20"
+                        placeholder="10"
+                        defaultValue="10"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="mysql-timeout">Timeout</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Время ожидания соединения (секунды)
+                        </p>
+                      </div>
+                      <Input
+                        id="mysql-timeout"
+                        className="w-20"
+                        placeholder="30"
+                        defaultValue="30"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button className="flex-1">
+                      Тестировать соединение
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      Сохранить настройки
+                    </Button>
+                  </div>
+
+                  <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                    <p className="text-sm text-warning-foreground">
+                      <strong>Демо режим:</strong> Настройки MySQL сохраняются только локально и не влияют на реальную работу системы.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
