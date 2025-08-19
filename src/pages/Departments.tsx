@@ -29,8 +29,11 @@ import {
   Clock
 } from "lucide-react";
 import { mockDepartments } from "@/data/mockData";
+import { DepartmentSettingsModal } from "@/components/modals/DepartmentSettingsModal";
+import { useState } from "react";
 
 const Departments = () => {
+  const [selectedDepartment, setSelectedDepartment] = useState<{ id: string; name: string } | null>(null);
   const getIntegrationIcon = (type: string) => {
     const iconMap = {
       'telegram': '📱',
@@ -207,8 +210,8 @@ const Departments = () => {
                         <div className="p-2 rounded-lg bg-primary/20">
                           <Building2 className="h-4 w-4 text-primary" />
                         </div>
-                        <div>
-                          <div className="font-medium">{dept.name}</div>
+                        <div className="cursor-pointer" onClick={() => setSelectedDepartment({ id: dept.id, name: dept.name })}>
+                          <div className="font-medium hover:text-primary transition-colors">{dept.name}</div>
                           <div className="text-xs text-muted-foreground">ID: {dept.id}</div>
                         </div>
                       </div>
@@ -283,8 +286,8 @@ const Departments = () => {
                       <div className="p-2 rounded-lg bg-warning/20">
                         <Building2 className="h-4 w-4 text-warning" />
                       </div>
-                      <div>
-                        <div className="font-medium">Бухгалтерия</div>
+                      <div className="cursor-pointer" onClick={() => setSelectedDepartment({ id: 'billing', name: 'Бухгалтерия' })}>
+                        <div className="font-medium hover:text-primary transition-colors">Бухгалтерия</div>
                         <div className="text-xs text-muted-foreground">ID: billing</div>
                       </div>
                     </div>
@@ -348,8 +351,8 @@ const Departments = () => {
                       <div className="p-2 rounded-lg bg-destructive/20">
                         <Building2 className="h-4 w-4 text-destructive" />
                       </div>
-                      <div>
-                        <div className="font-medium">HR Отдел</div>
+                      <div className="cursor-pointer" onClick={() => setSelectedDepartment({ id: 'hr', name: 'HR Отдел' })}>
+                        <div className="font-medium hover:text-primary transition-colors">HR Отдел</div>
                         <div className="text-xs text-muted-foreground">ID: hr</div>
                       </div>
                     </div>
@@ -406,6 +409,14 @@ const Departments = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Модал настроек департамента */}
+      <DepartmentSettingsModal
+        open={!!selectedDepartment}
+        onOpenChange={(open) => !open && setSelectedDepartment(null)}
+        departmentId={selectedDepartment?.id}
+        departmentName={selectedDepartment?.name}
+      />
     </div>
   );
 };

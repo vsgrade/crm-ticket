@@ -26,8 +26,11 @@ import {
   Shield
 } from "lucide-react";
 import { mockEmployees } from "@/data/mockData";
+import { StaffSettingsModal } from "@/components/modals/StaffSettingsModal";
+import { useState } from "react";
 
 const Staff = () => {
+  const [selectedStaff, setSelectedStaff] = useState<{ id: string; name: string } | null>(null);
   const getOnlineStatus = (isOnline: boolean, lastSeen: Date) => {
     if (isOnline) {
       return (
@@ -225,8 +228,8 @@ const Staff = () => {
                             {employee.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <div className="font-medium">{employee.name}</div>
+                        <div className="cursor-pointer" onClick={() => setSelectedStaff({ id: employee.id, name: employee.name })}>
+                          <div className="font-medium hover:text-primary transition-colors">{employee.name}</div>
                           <div className="text-sm text-muted-foreground">
                             {employee.email}
                           </div>
@@ -300,6 +303,14 @@ const Staff = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Модал настроек сотрудника */}
+      <StaffSettingsModal
+        open={!!selectedStaff}
+        onOpenChange={(open) => !open && setSelectedStaff(null)}
+        staffId={selectedStaff?.id}
+        staffName={selectedStaff?.name}
+      />
     </div>
   );
 };

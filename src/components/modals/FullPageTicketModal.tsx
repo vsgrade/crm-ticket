@@ -244,17 +244,37 @@ export const FullPageTicketModal = ({ open, onOpenChange, ticketId = "TIC-2024-0
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Департамент</label>
-              <Select value={ticketData.department} onValueChange={(value) => setTicketData(prev => ({ ...prev, department: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Техническая поддержка">Техническая поддержка</SelectItem>
-                  <SelectItem value="Продажи">Продажи</SelectItem>
-                  <SelectItem value="Финансы">Финансы</SelectItem>
-                </SelectContent>
-              </Select>
+              <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Департаменты</label>
+              <div className="space-y-2 p-3 border rounded-lg bg-card/30">
+                {[
+                  'Техническая поддержка',
+                  'Продажи', 
+                  'Финансы',
+                  'Маркетинг',
+                  'Бухгалтерия',
+                  'HR Отдел'
+                ].map((dept) => (
+                  <div key={dept} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={dept}
+                      checked={ticketData.department === dept}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setTicketData(prev => ({ ...prev, department: dept }));
+                        }
+                      }}
+                      className="rounded border-input"
+                    />
+                    <label 
+                      htmlFor={dept}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {dept}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div>

@@ -1,12 +1,24 @@
-import { Bot, MessageSquare, Zap, Settings, BarChart3, Brain } from "lucide-react";
+import { Bot, MessageSquare, Zap, Settings, BarChart3, Brain, Plus, Trash2, Edit } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 const AI = () => {
+  const [newModelName, setNewModelName] = useState("");
+  const [newModelType, setNewModelType] = useState("");
+  const [newModelProvider, setNewModelProvider] = useState("");
+  const [aiModels, setAiModels] = useState([
+    { id: 1, name: "GPT-4", type: "text-generation", provider: "OpenAI", status: "active", accuracy: "95%" },
+    { id: 2, name: "Claude-3", type: "text-generation", provider: "Anthropic", status: "active", accuracy: "93%" },
+    { id: 3, name: "Llama-2", type: "text-generation", provider: "Meta", status: "inactive", accuracy: "87%" },
+    { id: 4, name: "BERT", type: "text-classification", provider: "Google", status: "active", accuracy: "91%" },
+  ]);
   const aiFeatures = [
     {
       title: "Автоответы",
@@ -40,6 +52,35 @@ const AI = () => {
     "Жалоба на качество. Предложить компенсацию.",
     "Вопрос о доставке. Предоставить трек-номер."
   ];
+
+  const handleAddModel = () => {
+    if (newModelName && newModelType && newModelProvider) {
+      const newModel = {
+        id: aiModels.length + 1,
+        name: newModelName,
+        type: newModelType,
+        provider: newModelProvider,
+        status: "inactive",
+        accuracy: "N/A"
+      };
+      setAiModels([...aiModels, newModel]);
+      setNewModelName("");
+      setNewModelType("");
+      setNewModelProvider("");
+    }
+  };
+
+  const handleDeleteModel = (id: number) => {
+    setAiModels(aiModels.filter(model => model.id !== id));
+  };
+
+  const toggleModelStatus = (id: number) => {
+    setAiModels(aiModels.map(model => 
+      model.id === id 
+        ? { ...model, status: model.status === 'active' ? 'inactive' : 'active' }
+        : model
+    ));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -145,6 +186,85 @@ const AI = () => {
                 {recentSuggestions.map((suggestion, index) => (
                   <div key={index} className="p-3 bg-accent/30 rounded-lg">
                     <p className="text-sm">{suggestion}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                ИИ Модели
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Добавление новой модели */}
+              <div className="space-y-2 p-3 border rounded-lg bg-accent/20">
+                <h4 className="font-medium text-sm">Добавить модель</h4>
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Название модели"
+                    value={newModelName}
+                    onChange={(e) => setNewModelName(e.target.value)}
+                  />
+                  <Select value={newModelType} onValueChange={setNewModelType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Тип модели" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="text-generation">Генерация текста</SelectItem>
+                      <SelectItem value="text-classification">Классификация</SelectItem>
+                      <SelectItem value="sentiment-analysis">Анализ тональности</SelectItem>
+                      <SelectItem value="translation">Перевод</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="Провайдер (OpenAI, Google, etc.)"
+                    value={newModelProvider}
+                    onChange={(e) => setNewModelProvider(e.target.value)}
+                  />
+                  <Button onClick={handleAddModel} size="sm" className="w-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Добавить модель
+                  </Button>
+                </div>
+              </div>
+
+              {/* Список моделей */}
+              <div className="space-y-2">
+                {aiModels.map((model) => (
+                  <div key={model.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{model.name}</span>
+                        <Badge variant={model.status === 'active' ? 'default' : 'outline'} className="text-xs">
+                          {model.status === 'active' ? 'Активна' : 'Неактивна'}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {model.provider} • {model.type} • {model.accuracy}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => toggleModelStatus(model.id)}
+                      >
+                        <Zap className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleDeleteModel(model.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
