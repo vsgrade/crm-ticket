@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Table,
   TableBody,
@@ -22,18 +23,23 @@ import {
   User,
   Building2,
   Flag,
-  Paperclip
+  Paperclip,
+  Trash2,
+  Archive,
+  UserPlus
 } from "lucide-react";
-import { mockTickets, mockClients, mockEmployees } from "@/data/mockData";
+import { mockTickets, mockClients, mockEmployees, Ticket } from "@/data/mockData";
 import CreateTicketModal from "@/components/modals/CreateTicketModal";
 import TicketDetailModal from "@/components/modals/TicketDetailModal";
 import FullPageTicketModal from "@/components/modals/FullPageTicketModal";
+import TicketFilters, { TicketFilter } from "@/components/TicketFilters";
 
 const Tickets = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [ticketDetailOpen, setTicketDetailOpen] = useState(false);
   const [fullPageOpen, setFullPageOpen] = useState(false);
+  const [filter, setFilter] = useState<TicketFilter>({});
+  const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -117,52 +123,120 @@ const Tickets = () => {
     );
   };
 
+  // Фильтрация тикетов
+  const filteredTickets = useMemo(() => {
+    return mockTickets.filter((ticket) => {
+      // Поиск по тексту
+      if (filter.search) {
+        const searchLower = filter.search.toLowerCase();
+        const matchesSearch = 
+          ticket.id.toLowerCase().includes(searchLower) ||
+          ticket.subject.toLowerCase().includes(searchLower) ||
+          ticket.content.toLowerCase().includes(searchLower) ||
+          getClientName(ticket.clientId).toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+
+      // Фильтр по статусу
+      if (filter.status?.length && !filter.status.includes(ticket.status)) {
+        return false;
+      }
+
+      // Фильтр по приоритету
+      if (filter.priority?.length && !filter.priority.includes(ticket.priority)) {
+        return false;
+      }
+
+      // Фильтр по департаменту
+      if (filter.departments?.length && !ticket.departments.some(d => filter.departments!.includes(d))) {
+        return false;
+      }
+
+      // Фильтр по назначенному
+      if (filter.assignedTo?.length && !ticket.assignedTo.some(a => filter.assignedTo!.includes(a))) {
+        return false;
+      }
+
+      // Фильтр по источнику
+      if (filter.source?.length && !filter.source.includes(ticket.source)) {
+        return false;
+      }
+
+      // Фильтр по SLA статусу
+      if (filter.slaStatus?.length && !filter.slaStatus.includes(ticket.slaStatus)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [filter]);
+
+  const handleSelectTicket = (ticketId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTickets([...selectedTickets, ticketId]);
+    } else {
+      setSelectedTickets(selectedTickets.filter(id => id !== ticketId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedTickets(filteredTickets.map(t => t.id));
+    } else {
+      setSelectedTickets([]);
+    }
+  };
+
+  const getSelectedCount = () => selectedTickets.length;
+
   return (
     <div className="p-6 h-full flex flex-col">
-      {/* Заголовок и фильтры */}
+      {/* Заголовок */}
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
         <div className="flex-1">
           <h1 className="text-3xl font-bold mb-2">Тикеты</h1>
           <p className="text-muted-foreground">
-            Управление обращениями клиентов • Демо данные
+            Управление обращениями клиентов • Демо данные ({filteredTickets.length} из {mockTickets.length})
           </p>
         </div>
         
         <div className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Поиск тикетов..." 
-              className="pl-10 w-64"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-          </Button>
           <CreateTicketModal />
         </div>
       </div>
 
-      {/* Быстрые фильтры */}
-      <div className="flex gap-2 mb-4 overflow-x-auto">
-        <Badge variant="default" className="cursor-pointer">
-          Все (324)
-        </Badge>
-        <Badge variant="outline" className="cursor-pointer">
-          Новые (47)
-        </Badge>
-        <Badge variant="outline" className="cursor-pointer">
-          В работе (156)
-        </Badge>
-        <Badge variant="outline" className="cursor-pointer">
-          Просроченные SLA (12)
-        </Badge>
-        <Badge variant="outline" className="cursor-pointer">
-          Мои тикеты (23)
-        </Badge>
-      </div>
+      {/* Фильтры */}
+      <TicketFilters 
+        onFilterChange={setFilter}
+        currentFilter={filter}
+      />
+
+      {/* Панель массовых действий */}
+      {selectedTickets.length > 0 && (
+        <Card className="mb-4 bg-accent/50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                Выбрано тикетов: {getSelectedCount()}
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Назначить
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Archive className="h-4 w-4 mr-2" />
+                  Архивировать
+                </Button>
+                <Button variant="outline" size="sm" className="text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Удалить
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Таблица тикетов */}
       <Card className="flex-1 bg-gradient-to-br from-card to-card/50">
@@ -171,15 +245,21 @@ const Tickets = () => {
             <MessageSquare className="h-5 w-5" />
             Список тикетов
             <Badge variant="secondary" className="ml-auto">
-              {mockTickets.length} из 324 тикетов (демо)
+              {filteredTickets.length} тикетов
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-auto h-[calc(100vh-300px)]">
+          <div className="overflow-auto h-[calc(100vh-400px)]">
             <Table>
               <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                 <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={filteredTickets.length > 0 && selectedTickets.length === filteredTickets.length}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
                   <TableHead className="w-[120px]">
                     <Button variant="ghost" size="sm" className="h-8 p-0">
                       ID
@@ -219,8 +299,14 @@ const Tickets = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockTickets.map((ticket) => (
+                {filteredTickets.map((ticket) => (
                   <TableRow key={ticket.id} className="ticket-table-row">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedTickets.includes(ticket.id)}
+                        onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-sm">
                       <button 
                         onClick={() => {

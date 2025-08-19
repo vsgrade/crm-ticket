@@ -175,85 +175,236 @@ export const mockDepartments: Department[] = [
     },
     slaRules: [],
     isActive: true
+  },
+  {
+    id: "billing",
+    name: "Биллинг и оплата",
+    description: "Вопросы по счетам и платежам",
+    employees: ["1", "2"],
+    integrations: [
+      { type: "email", name: "billing@company.com", status: "active" }
+    ],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "hr",
+    name: "Отдел кадров",
+    description: "Работа с персоналом",
+    employees: ["2"],
+    integrations: [],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "marketing",
+    name: "Маркетинг",
+    description: "Реклама и продвижение",
+    employees: ["1"],
+    integrations: [
+      { type: "telegram", name: "Marketing Bot", status: "active" }
+    ],
+    workingHours: {
+      start: "10:00",
+      end: "19:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "development",
+    name: "Разработка",
+    description: "Техническое развитие продукта",
+    employees: ["2"],
+    integrations: [],
+    workingHours: {
+      start: "10:00",
+      end: "19:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "legal",
+    name: "Юридический отдел",
+    description: "Правовые вопросы",
+    employees: ["1"],
+    integrations: [
+      { type: "email", name: "legal@company.com", status: "active" }
+    ],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "security",
+    name: "Безопасность",
+    description: "Информационная безопасность",
+    employees: ["2"],
+    integrations: [],
+    workingHours: {
+      start: "00:00",
+      end: "23:59",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5, 6, 7]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "analytics",
+    name: "Аналитика",
+    description: "Анализ данных и отчетность",
+    employees: ["1"],
+    integrations: [],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "operations",
+    name: "Операционный отдел",
+    description: "Операционная деятельность",
+    employees: ["1", "2"],
+    integrations: [
+      { type: "telegram", name: "Operations Bot", status: "active" }
+    ],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "quality",
+    name: "Контроль качества",
+    description: "Обеспечение качества услуг",
+    employees: ["1"],
+    integrations: [],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
+  },
+  {
+    id: "procurement",
+    name: "Закупки",
+    description: "Снабжение и закупки",
+    employees: ["2"],
+    integrations: [
+      { type: "email", name: "procurement@company.com", status: "active" }
+    ],
+    workingHours: {
+      start: "09:00",
+      end: "18:00",
+      timezone: "Europe/Moscow",
+      weekdays: [1, 2, 3, 4, 5]
+    },
+    slaRules: [],
+    isActive: true
   }
 ];
 
-export const mockTickets: Ticket[] = [
-  {
-    id: "TIC-2024-001",
-    subject: "Проблема с авторизацией в системе",
-    content: "Здравствуйте! Не могу войти в личный кабинет. Ошибка 'Неверный пароль', хотя пароль точно правильный.",
-    status: "new",
-    priority: "high",
-    source: "telegram",
-    clientId: "1",
-    assignedTo: [],
-    departments: ["support"],
-    createdAt: new Date("2024-01-15T14:30:00"),
-    updatedAt: new Date("2024-01-15T14:30:00"),
-    lastReply: new Date("2024-01-15T14:30:00"),
-    lastReplyBy: "client",
-    slaStatus: "warning",
-    slaDeadline: new Date("2024-01-15T16:30:00"),
-    tags: ["авторизация", "пароль"],
-    hasAttachments: false,
-    internalNotes: [],
-    messages: [
-      {
-        id: "1",
-        content: "Здравствуйте! Не могу войти в личный кабинет. Ошибка 'Неверный пароль', хотя пароль точно правильный.",
-        author: "client",
-        timestamp: new Date("2024-01-15T14:30:00"),
-        type: "text"
-      }
-    ]
-  },
-  {
-    id: "TIC-2024-002", 
-    subject: "Вопрос по тарифам",
-    content: "Добрый день! Хотел бы узнать подробности о корпоративном тарифе. Какие возможности включены?",
-    status: "in-progress",
-    priority: "medium",
-    source: "whatsapp",
-    clientId: "2",
-    assignedTo: ["1"],
-    departments: ["sales"],
-    createdAt: new Date("2024-01-15T12:15:00"),
-    updatedAt: new Date("2024-01-15T13:45:00"),
-    lastReply: new Date("2024-01-15T13:45:00"),
-    lastReplyBy: "agent", 
-    slaStatus: "good",
-    slaDeadline: new Date("2024-01-16T12:15:00"),
-    tags: ["тарифы", "корпоративный"],
-    hasAttachments: true,
-    internalNotes: [
-      {
-        id: "1",
-        content: "Клиент интересуется корпоративным тарифом. Уже отправил презентацию.",
-        author: "1",
-        timestamp: new Date("2024-01-15T13:00:00")
-      }
-    ],
-    messages: [
-      {
-        id: "1",
-        content: "Добрый день! Хотел бы узнать подробности о корпоративном тарифе. Какие возможности включены?",
-        author: "client",
-        timestamp: new Date("2024-01-15T12:15:00"),
-        type: "text"
-      },
-      {
-        id: "2",
-        content: "Здравствуйте! Спасибо за обращение. Отправляю вам презентацию с подробным описанием корпоративного тарифа.",
-        author: "agent",
-        authorId: "1",
-        timestamp: new Date("2024-01-15T13:45:00"),
-        type: "text",
-        attachments: ["corporate_plan.pdf"]
-      }
-    ]
+const generateMockTickets = (): Ticket[] => {
+  const tickets: Ticket[] = [];
+  const subjects = [
+    "Проблема с авторизацией в системе", "Вопрос по тарифам", "Ошибка при оплате", "Не работает интеграция",
+    "Проблема с доступом к API", "Вопрос по функционалу", "Ошибка в отчетах", "Проблема с уведомлениями",
+    "Технические неполадки", "Вопрос по настройкам", "Проблема с синхронизацией", "Ошибка загрузки файлов",
+    "Проблема с производительностью", "Вопрос по безопасности", "Ошибка в базе данных", "Проблема с мобильным приложением",
+    "Вопрос по интеграции", "Проблема с резервными копиями", "Ошибка в системе уведомлений", "Проблема с сертификатами",
+    "Вопрос по лицензированию", "Проблема с балансом", "Ошибка импорта данных", "Проблема с экспортом отчетов",
+    "Вопрос по настройке webhook", "Проблема с двухфакторной аутентификацией", "Ошибка в системе логирования"
+  ];
+  
+  const contents = [
+    "Добрый день! Возникла проблема с системой, не могу разобраться самостоятельно.",
+    "Здравствуйте! Нужна помощь с настройкой, подскажите пожалуйста.",
+    "Привет! Столкнулся с ошибкой, помогите решить.",
+    "Доброе утро! Есть вопрос по функционалу системы.", 
+    "Здравствуйте! Нужна консультация по использованию сервиса.",
+    "Добрый вечер! Помогите разобраться с настройками.",
+    "Привет! Возникли сложности, нужна техническая поддержка."
+  ];
+
+  const statuses: Array<'new' | 'in-progress' | 'resolved' | 'closed'> = ['new', 'in-progress', 'resolved', 'closed'];
+  const priorities: Array<'low' | 'medium' | 'high' | 'critical'> = ['low', 'medium', 'high', 'critical'];
+  const sources: Array<'telegram' | 'whatsapp' | 'whatsapp-business' | 'vk' | 'sms' | 'email' | 'android'> = 
+    ['telegram', 'whatsapp', 'whatsapp-business', 'vk', 'sms', 'email', 'android'];
+  const slaStatuses: Array<'good' | 'warning' | 'critical'> = ['good', 'warning', 'critical'];
+
+  for (let i = 1; i <= 82; i++) {
+    const createdDate = new Date(2024, 0, Math.floor(Math.random() * 15) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+    const lastReplyDate = new Date(createdDate.getTime() + Math.random() * 24 * 60 * 60 * 1000);
+    
+    tickets.push({
+      id: `TIC-2024-${String(i).padStart(3, '0')}`,
+      subject: subjects[Math.floor(Math.random() * subjects.length)],
+      content: contents[Math.floor(Math.random() * contents.length)],
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+      priority: priorities[Math.floor(Math.random() * priorities.length)],
+      source: sources[Math.floor(Math.random() * sources.length)],
+      clientId: Math.random() > 0.5 ? "1" : "2",
+      assignedTo: Math.random() > 0.3 ? [Math.random() > 0.5 ? "1" : "2"] : [],
+      departments: [["support", "sales", "billing", "hr", "marketing"][Math.floor(Math.random() * 5)]],
+      createdAt: createdDate,
+      updatedAt: lastReplyDate,
+      lastReply: lastReplyDate,
+      lastReplyBy: Math.random() > 0.5 ? 'client' : 'agent',
+      slaStatus: slaStatuses[Math.floor(Math.random() * slaStatuses.length)],
+      slaDeadline: new Date(createdDate.getTime() + 4 * 60 * 60 * 1000),
+      tags: [`тег${Math.floor(Math.random() * 10) + 1}`, `категория${Math.floor(Math.random() * 5) + 1}`],
+      hasAttachments: Math.random() > 0.7,
+      internalNotes: [],
+      messages: [
+        {
+          id: "1",
+          content: contents[Math.floor(Math.random() * contents.length)],
+          author: "client",
+          timestamp: createdDate,
+          type: "text"
+        }
+      ]
+    });
   }
-];
+
+  return tickets;
+};
+
+export const mockTickets: Ticket[] = generateMockTickets();
 
 // Статистика для дашборда
 export const mockStats = {

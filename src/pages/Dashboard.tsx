@@ -177,21 +177,52 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => window.location.href = '/tickets'}
+            >
               <Ticket className="h-4 w-4 mr-2" />
               Создать тикет
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => window.location.href = '/clients'}
+            >
               <Users className="h-4 w-4 mr-2" />
               Добавить клиента
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => window.location.href = '/integrations/messengers'}
+            >
               <MessageSquare className="h-4 w-4 mr-2" />
               Настроить интеграцию
             </Button>
-            <Button className="w-full justify-start btn-gradient">
+            <Button 
+              className="w-full justify-start btn-gradient"
+              onClick={() => window.location.href = '/api-documentation'}
+            >
               <Globe className="h-4 w-4 mr-2" />
               API Документация
+            </Button>
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => window.location.href = '/reports'}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Создать отчет
+            </Button>
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => window.location.href = '/settings'}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Настройки SLA
             </Button>
           </CardContent>
         </Card>
