@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   DollarSign,
   Calendar,
-  MessageCircle
+  MessageCircle,
+  Plus
 } from "lucide-react";
 
 const Settings = () => {
@@ -378,6 +379,108 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="database" className="space-y-6">
+            {/* Кастомные поля */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium">Дополнительные поля</h3>
+                <p className="text-sm text-muted-foreground">
+                  Настройка дополнительных полей для клиентов и сотрудников
+                </p>
+              </div>
+              <div className="space-y-4">
+                <Tabs defaultValue="clients" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="clients">Поля клиентов</TabsTrigger>
+                    <TabsTrigger value="staff">Поля сотрудников</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="clients" className="space-y-4">
+                    <Card className="border-2 hover:border-primary/20 transition-colors">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="font-medium">Дополнительные поля клиентов</CardTitle>
+                          <Button size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Добавить поле
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <span className="font-medium">Номер договора</span>
+                            <span className="text-sm text-muted-foreground ml-2">Текст</span>
+                          </div>
+                          <Button size="sm" variant="outline">Редактировать</Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <span className="font-medium">Дата регистрации</span>
+                            <span className="text-sm text-muted-foreground ml-2">Дата</span>
+                          </div>
+                          <Button size="sm" variant="outline">Редактировать</Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <span className="font-medium">Тип клиента</span>
+                            <span className="text-sm text-muted-foreground ml-2">Выбор</span>
+                          </div>
+                          <Button size="sm" variant="outline">Редактировать</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  <TabsContent value="staff" className="space-y-4">
+                    <Card className="border-2 hover:border-primary/20 transition-colors">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="font-medium">Дополнительные поля сотрудников</CardTitle>
+                          <Button size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Добавить поле
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <span className="font-medium">Табельный номер</span>
+                            <span className="text-sm text-muted-foreground ml-2">Число</span>
+                          </div>
+                          <Button size="sm" variant="outline">Редактировать</Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <span className="font-medium">Дата приема на работу</span>
+                            <span className="text-sm text-muted-foreground ml-2">Дата</span>
+                          </div>
+                          <Button size="sm" variant="outline">Редактировать</Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <span className="font-medium">Уровень доступа</span>
+                            <span className="text-sm text-muted-foreground ml-2">Выбор</span>
+                          </div>
+                          <Button size="sm" variant="outline">Редактировать</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+
+            <Separator />
+            
+            {/* База данных */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium">База данных</h3>
+                <p className="text-sm text-muted-foreground">
+                  Настройка подключения к базе данных
+                </p>
+              </div>
+            </div>
+            
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="border-2 hover:border-primary/20 transition-colors">
                 <CardHeader>

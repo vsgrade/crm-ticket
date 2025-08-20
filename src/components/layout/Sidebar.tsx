@@ -21,7 +21,9 @@ import {
   AlertTriangle,
   FileText,
   Star,
-  Calendar
+  Calendar,
+  DollarSign,
+  ClipboardList
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -42,6 +44,13 @@ const navigation = [
       { name: "Сотрудники", href: "/staff", icon: UserCheck, badge: null },
       { name: "Департаменты", href: "/departments", icon: Building2, badge: null },
       { name: "База знаний", href: "/knowledge", icon: BookOpen, badge: "156" },
+    ]
+  },
+  {
+    title: "Личный кабинет",
+    items: [
+      { name: "Заработная плата", href: "/salary", icon: DollarSign, badge: null },
+      { name: "График работы", href: "/schedule", icon: ClipboardList, badge: null },
     ]
   },
   {

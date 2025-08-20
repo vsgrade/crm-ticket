@@ -1,11 +1,14 @@
-import { MessageSquare, Settings, Plus, CheckCircle, AlertCircle, Activity } from "lucide-react";
+import { MessageSquare, Settings, Plus, CheckCircle, AlertCircle, Activity, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { useState } from "react";
+import CreateMessengerModal from "@/components/modals/CreateMessengerModal";
 
 const Messengers = () => {
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const integrations = [
     {
       name: "WhatsApp Business",
@@ -115,7 +118,7 @@ const Messengers = () => {
           </div>
           <Badge variant="secondary">7 интеграций</Badge>
         </div>
-        <Button>
+        <Button onClick={() => setCreateModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Добавить интеграцию
         </Button>
@@ -237,7 +240,15 @@ const Messengers = () => {
                     Настроить
                   </Button>
                   <Button size="sm" variant="outline">
+                    <Edit className="h-3 w-3 mr-1" />
+                    Редактировать
+                  </Button>
+                  <Button size="sm" variant="outline">
                     Тестировать
+                  </Button>
+                  <Button size="sm" variant="destructive">
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Удалить
                   </Button>
                 </div>
               </div>
@@ -275,6 +286,11 @@ const Messengers = () => {
           </CardContent>
         </Card>
       </div>
+
+      <CreateMessengerModal 
+        open={createModalOpen} 
+        onOpenChange={setCreateModalOpen} 
+      />
     </div>
   );
 };

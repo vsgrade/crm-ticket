@@ -83,7 +83,7 @@ const AI = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-full overflow-y-auto">
       <div className="flex items-center gap-3">
         <Bot className="h-8 w-8 text-primary" />
         <div>

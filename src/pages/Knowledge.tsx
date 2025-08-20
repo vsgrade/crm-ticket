@@ -19,6 +19,7 @@ import {
   ThumbsUp
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface Article {
   id: string;
@@ -42,6 +43,9 @@ interface Category {
 
 const Knowledge = () => {
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
 
   const categories: Category[] = [
     {
@@ -161,6 +165,40 @@ const Knowledge = () => {
     });
   };
 
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    const categoryArticles = [...popularArticles, ...recentArticles].filter(
+      article => article.categoryId === categoryId
+    );
+    setFilteredArticles(categoryArticles);
+    toast({
+      title: "Фильтр по категории",
+      description: `Показаны статьи категории "${categories.find(cat => cat.id === categoryId)?.name}"`,
+    });
+  };
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    
+    const searchResults = [...popularArticles, ...recentArticles].filter(
+      article =>
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredArticles(searchResults);
+    setSelectedCategory(null);
+    toast({
+      title: "Поиск",
+      description: `Найдено ${searchResults.length} статей по запросу "${searchQuery}"`,
+    });
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory(null);
+    setFilteredArticles([]);
+    setSearchQuery("");
+  };
+
   return (
     <div className="p-6 space-y-6 h-full overflow-y-auto">
       {/* Заголовок */}
@@ -191,18 +229,36 @@ const Knowledge = () => {
             <Input 
               placeholder="Поиск по заголовкам и содержимому статей..." 
               className="pl-12 h-12 text-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
+            <Button 
+              className="absolute right-2 top-2 h-8"
+              onClick={handleSearch}
+            >
+              Найти
+            </Button>
           </div>
           <div className="flex gap-2 mt-4">
+            <Badge 
+              variant={selectedCategory === null && filteredArticles.length === 0 ? "default" : "outline"} 
+              className="cursor-pointer hover:bg-accent"
+              onClick={clearFilters}
+            >
+              Все статьи
+            </Badge>
             <Badge variant="outline" className="cursor-pointer hover:bg-accent">
               Популярные
             </Badge>
             <Badge variant="outline" className="cursor-pointer hover:bg-accent">
               Недавние
             </Badge>
-            <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-              По категориям
-            </Badge>
+            {selectedCategory && (
+              <Badge variant="default">
+                {categories.find(cat => cat.id === selectedCategory)?.name}
+              </Badge>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -277,7 +333,13 @@ const Knowledge = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             {categories.map((category) => (
-              <div key={category.id} className="p-3 rounded-lg bg-accent/30 border border-border/50 hover:bg-accent/50 transition-colors cursor-pointer">
+              <div 
+                key={category.id} 
+                className={`p-3 rounded-lg border border-border/50 hover:bg-accent/50 transition-colors cursor-pointer ${
+                  selectedCategory === category.id ? 'bg-primary/10 border-primary/20' : 'bg-accent/30'
+                }`}
+                onClick={() => handleCategoryClick(category.id)}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{category.icon}</span>
@@ -296,17 +358,20 @@ const Knowledge = () => {
           </CardContent>
         </Card>
 
-        {/* Популярные статьи */}
+        {/* Популярные статьи или результаты поиска */}
         <Card className="lg:col-span-2 bg-gradient-to-br from-card to-card/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              Популярные статьи
-              <Badge variant="secondary" className="ml-auto">Демо контент</Badge>
+              {selectedCategory ? `Статьи категории: ${categories.find(cat => cat.id === selectedCategory)?.name}` :
+               filteredArticles.length > 0 ? 'Результаты поиска' : 'Популярные статьи'}
+              <Badge variant="secondary" className="ml-auto">
+                {filteredArticles.length > 0 ? `${filteredArticles.length} статей` : 'Демо контент'}
+              </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {popularArticles.map((article) => (
+            {(filteredArticles.length > 0 ? filteredArticles : popularArticles).map((article) => (
               <div key={article.id} className="p-4 rounded-lg bg-accent/30 border border-border/50 hover:bg-accent/50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-medium">{article.title}</h4>
@@ -339,6 +404,12 @@ const Knowledge = () => {
                 </div>
               </div>
             ))}
+            {filteredArticles.length === 0 && searchQuery && (
+              <div className="text-center p-8 text-muted-foreground">
+                <Search className="h-8 w-8 mx-auto mb-2" />
+                <p>По запросу "{searchQuery}" ничего не найдено</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

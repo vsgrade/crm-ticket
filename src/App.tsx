@@ -26,6 +26,8 @@ import Messengers from "./pages/integrations/Messengers";
 import Email from "./pages/integrations/Email";
 import SMS from "./pages/integrations/SMS";
 import AddIntegration from "./pages/integrations/AddIntegration";
+import Salary from "./pages/Salary";
+import Schedule from "./pages/Schedule";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,8 +60,10 @@ const App = () => (
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/integrations/messengers" element={<Messengers />} />
             <Route path="/integrations/email" element={<Email />} />
-          <Route path="/integrations/sms" element={<SMS />} />
-          <Route path="/integrations/add" element={<AddIntegration />} />
+            <Route path="/integrations/sms" element={<SMS />} />
+            <Route path="/integrations/add" element={<AddIntegration />} />
+            <Route path="/salary" element={<Salary />} />
+            <Route path="/schedule" element={<Schedule />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

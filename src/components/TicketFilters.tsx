@@ -47,7 +47,7 @@ const TicketFilters = ({ onFilterChange, currentFilter }: TicketFiltersProps) =>
   const [savedFilters, setSavedFilters] = useState<TicketFilter[]>([
     { id: "1", name: "Новые важные тикеты", status: ["new"], priority: ["high", "critical"] },
     { id: "2", name: "Просроченные SLA", slaStatus: ["critical"] },
-    { id: "3", name: "Мои тикеты", assignedTo: ["1"] }
+    { id: "3", name: "Мои тикеты", assignedTo: ["current_user"] }
   ]);
 
   const statusOptions = [
@@ -186,6 +186,13 @@ const TicketFilters = ({ onFilterChange, currentFilter }: TicketFiltersProps) =>
             </Button>
           </Badge>
         ))}
+        <Badge 
+          variant="outline" 
+          className="cursor-pointer hover:bg-accent"
+          onClick={() => onFilterChange({ assignedTo: ["current_user"] })}
+        >
+          Мои тикеты
+        </Badge>
         <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
