@@ -1,4 +1,4 @@
-import { Bell, Search, Settings, User, MessageSquare, BarChart3, LogOut, UserCog } from "lucide-react";
+import { Bell, Search, Settings, User, MessageSquare, BarChart3, LogOut, UserCog, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -6,9 +6,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   const notifications = [
     { id: 1, title: "Новый тикет #4521", message: "Клиент сообщил о проблеме с доступом", time: "2 мин назад", type: "ticket" },
@@ -101,6 +103,15 @@ const Header = () => {
               </Card>
             </PopoverContent>
           </Popover>
+
+          {/* Переключатель темы */}
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
 
           {/* Настройки */}
           <Button 

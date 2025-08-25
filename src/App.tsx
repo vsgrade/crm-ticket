@@ -1,8 +1,9 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import Layout from "./components/layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import Tickets from "./pages/Tickets";
@@ -34,42 +35,43 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/tickets" element={<Tickets />} />
-            <Route path="/clients" element={<Clients />} />
-            <Route path="/staff" element={<Staff />} />
-            <Route path="/departments" element={<Departments />} />
-            <Route path="/knowledge" element={<Knowledge />} />
-            <Route path="/checklist" element={<Checklist />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/sla" element={<SLA />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/performance" element={<Performance />} />
-            <Route path="/integrations/api" element={<APIDocumentation />} />
-            <Route path="/ai" element={<AI />} />
-            <Route path="/macros" element={<Macros />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/escalation" element={<Escalation />} />
-            <Route path="/archive" element={<Archive />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/integrations/messengers" element={<Messengers />} />
-            <Route path="/integrations/email" element={<Email />} />
-            <Route path="/integrations/sms" element={<SMS />} />
-            <Route path="/integrations/add" element={<AddIntegration />} />
-            <Route path="/salary" element={<Salary />} />
-            <Route path="/schedule" element={<Schedule />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/tickets" element={<Tickets />} />
+              <Route path="/clients" element={<Clients />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/departments" element={<Departments />} />
+              <Route path="/knowledge" element={<Knowledge />} />
+              <Route path="/checklist" element={<Checklist />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/sla" element={<SLA />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/performance" element={<Performance />} />
+              <Route path="/integrations/api" element={<APIDocumentation />} />
+              <Route path="/ai" element={<AI />} />
+              <Route path="/macros" element={<Macros />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/escalation" element={<Escalation />} />
+              <Route path="/archive" element={<Archive />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/integrations/messengers" element={<Messengers />} />
+              <Route path="/integrations/email" element={<Email />} />
+              <Route path="/integrations/sms" element={<SMS />} />
+              <Route path="/integrations/add" element={<AddIntegration />} />
+              <Route path="/salary" element={<Salary />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

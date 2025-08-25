@@ -6,9 +6,12 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { useState } from "react";
 import CreateMessengerModal from "@/components/modals/CreateMessengerModal";
+import IntegrationSettingsModal from "@/components/modals/IntegrationSettingsModal";
 
 const Messengers = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [selectedIntegration, setSelectedIntegration] = useState(null);
   const integrations = [
     {
       name: "WhatsApp Business",
@@ -105,6 +108,11 @@ const Messengers = () => {
       default:
         return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
+  };
+
+  const handleSettingsClick = (integration: any) => {
+    setSelectedIntegration(integration);
+    setSettingsModalOpen(true);
   };
 
   return (
@@ -235,7 +243,11 @@ const Messengers = () => {
                 </div>
 
                 <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleSettingsClick(integration)}
+                  >
                     <Settings className="h-3 w-3 mr-1" />
                     Настроить
                   </Button>
@@ -290,6 +302,12 @@ const Messengers = () => {
       <CreateMessengerModal 
         open={createModalOpen} 
         onOpenChange={setCreateModalOpen} 
+      />
+
+      <IntegrationSettingsModal
+        open={settingsModalOpen}
+        onOpenChange={setSettingsModalOpen}
+        integration={selectedIntegration}
       />
     </div>
   );
