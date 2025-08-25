@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Send, 
@@ -17,10 +18,12 @@ import {
   Users,
   Tag,
   Flag,
-  Settings
+  Settings,
+  Bot
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import AIAssistant from "@/components/AIAssistant";
 
 interface TicketDetailModalProps {
   open: boolean;
@@ -242,119 +245,151 @@ export const TicketDetailModal = ({ open, onOpenChange, ticketId = "TIC-2024-001
             </div>
           </div>
 
-          {/* Правая панель - переписка */}
+          {/* Правая панель - переписка и AI */}
           <div className="flex-1 flex flex-col">
-            {/* Заголовок переписки */}
+            {/* Заголовок с вкладками */}
             <div className="p-4 border-b border-border bg-card/30">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Переписка по тикету</h3>
-                <Badge variant="secondary">Демо переписка</Badge>
-              </div>
-            </div>
+              <Tabs defaultValue="conversation" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="conversation" className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Переписка
+                  </TabsTrigger>
+                  <TabsTrigger value="ai-assistant" className="flex items-center gap-2">
+                    <Bot className="h-4 w-4" />
+                    AI Суфлёр
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="conversation" className="mt-0 h-[calc(60vh-120px)] flex flex-col">
+                  <div className="flex items-center justify-between py-2">
+                    <h3 className="font-semibold">Переписка по тикету</h3>
+                    <Badge variant="secondary">Демо переписка</Badge>
+                  </div>
 
-            {/* Сообщения */}
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">
-                {messages.map((msg) => (
-                  <div key={msg.id} className={`flex gap-3 ${msg.author === 'agent' ? 'justify-end' : 'justify-start'}`}>
-                    {msg.author === 'client' && (
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/20 text-primary">
-                          {msg.authorName.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    
-                    <div className={`max-w-[70%] space-y-1`}>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{msg.authorName}</span>
-                        <span>{msg.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
-                        {msg.isInternal && (
-                          <Badge variant="secondary" className="text-xs h-4">
-                            Внутренняя
-                          </Badge>
-                        )}
+                  {/* Сообщения */}
+                  <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-4">
+                      {messages.map((msg) => (
+                        <div key={msg.id} className={`flex gap-3 ${msg.author === 'agent' ? 'justify-end' : 'justify-start'}`}>
+                          {msg.author === 'client' && (
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-primary/20 text-primary">
+                                {msg.authorName.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          
+                          <div className={`max-w-[70%] space-y-1`}>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{msg.authorName}</span>
+                              <span>{msg.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+                              {msg.isInternal && (
+                                <Badge variant="secondary" className="text-xs h-4">
+                                  Внутренняя
+                                </Badge>
+                              )}
+                            </div>
+                            <div 
+                              className={`p-3 rounded-lg text-sm ${
+                                msg.isInternal 
+                                  ? 'bg-warning/20 border border-warning/30 text-warning-foreground' 
+                                  : msg.author === 'client' 
+                                  ? 'bg-accent text-accent-foreground' 
+                                  : 'bg-primary text-primary-foreground'
+                              }`}
+                            >
+                              {msg.content}
+                            </div>
+                          </div>
+
+                          {msg.author === 'agent' && !msg.isInternal && (
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-success/20 text-success">
+                                {msg.authorName.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+
+                  {/* Форма ответа */}
+                  <div className="p-4 border-t border-border bg-card/30">
+                    <div className="space-y-3">
+                      {/* Переключатель режима */}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={!isInternal ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsInternal(false)}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Ответ клиенту
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={isInternal ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsInternal(true)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Внутренняя заметка
+                        </Button>
                       </div>
-                      <div 
-                        className={`p-3 rounded-lg text-sm ${
-                          msg.isInternal 
-                            ? 'bg-warning/20 border border-warning/30 text-warning-foreground' 
-                            : msg.author === 'client' 
-                            ? 'bg-accent text-accent-foreground' 
-                            : 'bg-primary text-primary-foreground'
-                        }`}
-                      >
-                        {msg.content}
+
+                      {/* Поле ввода */}
+                      <div className="flex gap-2">
+                        <Textarea
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          placeholder={isInternal ? "Внутренняя заметка (видна только сотрудникам)..." : "Введите ответ клиенту..."}
+                          className={`flex-1 min-h-[60px] resize-none ${
+                            isInternal ? 'border-warning/50 focus:border-warning' : ''
+                          }`}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                        />
+                        <div className="flex flex-col gap-2">
+                          <Button variant="outline" size="icon">
+                            <Paperclip className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            onClick={handleSendMessage}
+                            disabled={!message.trim()}
+                            className={isInternal ? "bg-warning hover:bg-warning/90" : "btn-gradient"}
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-
-                    {msg.author === 'agent' && !msg.isInternal && (
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-success/20 text-success">
-                          {msg.authorName.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
+                </TabsContent>
 
-            {/* Форма ответа */}
-            <div className="p-4 border-t border-border bg-card/30">
-              <div className="space-y-3">
-                {/* Переключатель режима */}
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={!isInternal ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setIsInternal(false)}
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Ответ клиенту
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={isInternal ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setIsInternal(true)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Внутренняя заметка
-                  </Button>
-                </div>
-
-                {/* Поле ввода */}
-                <div className="flex gap-2">
-                  <Textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={isInternal ? "Внутренняя заметка (видна только сотрудникам)..." : "Введите ответ клиенту..."}
-                    className={`flex-1 min-h-[60px] resize-none ${
-                      isInternal ? 'border-warning/50 focus:border-warning' : ''
-                    }`}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                  />
-                  <div className="flex flex-col gap-2">
-                    <Button variant="outline" size="icon">
-                      <Paperclip className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      onClick={handleSendMessage}
-                      disabled={!message.trim()}
-                      className={isInternal ? "bg-warning hover:bg-warning/90" : "btn-gradient"}
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                <TabsContent value="ai-assistant" className="mt-0 h-[calc(60vh-120px)]">
+                  <ScrollArea className="h-full p-4">
+                    <AIAssistant 
+                      ticketId={ticketData.id}
+                      ticketContent={`${ticketData.subject}\n\n${messages.map(m => `${m.authorName}: ${m.content}`).join('\n\n')}`}
+                      onSuggestionApply={(suggestion) => {
+                        if (suggestion.type === 'response') {
+                          setMessage(suggestion.content);
+                        }
+                        // Переключиться на вкладку переписки
+                        const conversationTab = document.querySelector('[value="conversation"]') as HTMLElement;
+                        conversationTab?.click();
+                      }}
+                    />
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>

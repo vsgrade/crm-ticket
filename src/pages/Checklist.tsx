@@ -65,6 +65,33 @@ const checklistData: ChecklistItem[] = [
     priority: 'medium',
     estimatedHours: 6
   },
+  {
+    id: '4.1',
+    category: 'Интеграции мессенджеров',
+    feature: 'Интеграция Яндекс мессенджер',
+    status: 'not-started',
+    comment: 'Подключение к Яндекс мессенджеру',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '4.2',
+    category: 'Интеграции мессенджеров',
+    feature: 'Интеграция MAX',
+    status: 'not-started',
+    comment: 'Интеграция с MAX мессенджером',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '4.3',
+    category: 'Интеграции мессенджеров',
+    feature: 'Telegram Business интеграция',
+    status: 'not-started',
+    comment: 'Интеграция с Telegram Business API',
+    priority: 'medium',
+    estimatedHours: 10
+  },
 
   // Система тикетов
   {
@@ -102,6 +129,51 @@ const checklistData: ChecklistItem[] = [
     comment: 'Multi-select интерфейс готов',
     priority: 'medium',
     estimatedHours: 4
+  },
+  {
+    id: '8.1',
+    category: 'Тикеты',
+    feature: 'Индивидуальные поля тикетов',
+    status: 'not-started',
+    comment: 'Кастомные поля для расширения информации',
+    priority: 'medium',
+    estimatedHours: 16
+  },
+  {
+    id: '8.2',
+    category: 'Тикеты',
+    feature: 'Теги для тикетов',
+    status: 'not-started',
+    comment: 'Система меток для категоризации',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '8.3',
+    category: 'Тикеты',
+    feature: 'Экспорт тикетов с шаблонами',
+    status: 'not-started',
+    comment: 'Настраиваемый экспорт данных',
+    priority: 'low',
+    estimatedHours: 12
+  },
+  {
+    id: '8.4',
+    category: 'Тикеты',
+    feature: 'Инициация переписки с клиентом',
+    status: 'not-started',
+    comment: 'Возможность начать диалог с клиентом',
+    priority: 'medium',
+    estimatedHours: 6
+  },
+  {
+    id: '8.5',
+    category: 'Тикеты',
+    feature: 'Упоминания пользователей (@user)',
+    status: 'not-started',
+    comment: 'Система уведомлений через @',
+    priority: 'low',
+    estimatedHours: 8
   },
 
   // SLA система
@@ -161,6 +233,24 @@ const checklistData: ChecklistItem[] = [
     priority: 'high',
     estimatedHours: 8
   },
+  {
+    id: '14.1',
+    category: 'Управление',
+    feature: 'Кабинет клиента',
+    status: 'not-started',
+    comment: 'Личный кабинет для клиентов',
+    priority: 'medium',
+    estimatedHours: 24
+  },
+  {
+    id: '14.2',
+    category: 'Управление',
+    feature: 'Поля контактов и статусы сотрудников',
+    status: 'not-started',
+    comment: 'Расширенные профили и статусы',
+    priority: 'low',
+    estimatedHours: 12
+  },
 
   // Фильтрация и поиск
   {
@@ -210,6 +300,24 @@ const checklistData: ChecklistItem[] = [
     priority: 'low',
     estimatedHours: 20
   },
+  {
+    id: '19.1',
+    category: 'База знаний',
+    feature: 'Темы базы знаний',
+    status: 'not-started',
+    comment: 'Настройка визуального оформления',
+    priority: 'low',
+    estimatedHours: 8
+  },
+  {
+    id: '19.2',
+    category: 'База знаний',
+    feature: 'Публичная база знаний',
+    status: 'not-started',
+    comment: 'Портал помощи для клиентов',
+    priority: 'medium',
+    estimatedHours: 20
+  },
 
   // API и интеграции
   {
@@ -236,6 +344,24 @@ const checklistData: ChecklistItem[] = [
     feature: 'Webhook уведомления',
     status: 'not-started',
     comment: 'События системы для внешних интеграций',
+    priority: 'medium',
+    estimatedHours: 12
+  },
+  {
+    id: '22.1',
+    category: 'API',
+    feature: 'Postman коллекция',
+    status: 'not-started',
+    comment: 'Готовые примеры запросов API',
+    priority: 'low',
+    estimatedHours: 4
+  },
+  {
+    id: '22.2',
+    category: 'API',
+    feature: 'Выгрузка данных по API',
+    status: 'not-started',
+    comment: 'API для экспорта компаний и базы знаний',
     priority: 'medium',
     estimatedHours: 12
   },
@@ -268,6 +394,33 @@ const checklistData: ChecklistItem[] = [
     priority: 'low',
     estimatedHours: 8
   },
+  {
+    id: '25.1',
+    category: 'ИИ',
+    feature: 'AI-помощник (Суфлёр)',
+    status: 'in-progress',
+    comment: 'ИИ-анализ тикетов и предложение ответов',
+    priority: 'high',
+    estimatedHours: 32
+  },
+  {
+    id: '25.2',
+    category: 'ИИ',
+    feature: 'AI чат-бот для клиентов',
+    status: 'not-started',
+    comment: 'Автоматические ответы клиентам',
+    priority: 'medium',
+    estimatedHours: 24
+  },
+  {
+    id: '25.3',
+    category: 'ИИ',
+    feature: 'AI-бот от внешних провайдеров',
+    status: 'not-started',
+    comment: 'Интеграция с внешними AI сервисами',
+    priority: 'low',
+    estimatedHours: 16
+  },
 
   // Дополнительные интеграции
   {
@@ -297,6 +450,78 @@ const checklistData: ChecklistItem[] = [
     priority: 'low',
     estimatedHours: 80
   },
+  {
+    id: '28.1',
+    category: 'Интеграции',
+    feature: 'Gmail почта',
+    status: 'not-started',
+    comment: 'Специальная интеграция с Gmail',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '28.2',
+    category: 'Интеграции',
+    feature: 'Яндекс почта',
+    status: 'not-started',
+    comment: 'Интеграция с Яндекс почтой',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '28.3',
+    category: 'Интеграции',
+    feature: 'Mail.ru почта',
+    status: 'not-started',
+    comment: 'Интеграция с Mail.ru',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '28.4',
+    category: 'Интеграции',
+    feature: 'RocketData интеграция',
+    status: 'not-started',
+    comment: 'Интеграция с RocketData',
+    priority: 'low',
+    estimatedHours: 12
+  },
+  {
+    id: '28.5',
+    category: 'Интеграции',
+    feature: 'IP-телефония',
+    status: 'not-started',
+    comment: 'Интеграция с телефонными системами',
+    priority: 'medium',
+    estimatedHours: 24
+  },
+  {
+    id: '28.6',
+    category: 'Интеграции',
+    feature: 'LDAP/Active Directory',
+    status: 'not-started',
+    comment: 'Корпоративная аутентификация',
+    priority: 'low',
+    estimatedHours: 20
+  },
+  {
+    id: '28.7',
+    category: 'Интеграции',
+    feature: 'Keycloak SSO (SAML)',
+    status: 'not-started',
+    comment: 'Единый вход через SAML',
+    priority: 'low',
+    estimatedHours: 16
+  },
+  {
+    id: '28.8',
+    category: 'Интеграции',
+    feature: 'JWT единый вход',
+    status: 'not-started',
+    comment: 'JWT авторизация для внешних систем',
+    priority: 'medium',
+    estimatedHours: 12
+  },
 
   // Система уведомлений
   {
@@ -316,6 +541,24 @@ const checklistData: ChecklistItem[] = [
     comment: 'Шаблоны писем и отправка',
     priority: 'medium',
     estimatedHours: 12
+  },
+  {
+    id: '30.1',
+    category: 'Уведомления',
+    feature: 'Уведомления в WhatsApp',
+    status: 'not-started',
+    comment: 'Отправка уведомлений через WhatsApp',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '30.2',
+    category: 'Уведомления',
+    feature: 'Уведомления в Пачку',
+    status: 'not-started',
+    comment: 'Интеграция с мессенджером Пачка',
+    priority: 'low',
+    estimatedHours: 6
   },
 
   // Отчетность
@@ -337,10 +580,176 @@ const checklistData: ChecklistItem[] = [
     priority: 'low',
     estimatedHours: 12
   },
+  {
+    id: '32.1',
+    category: 'Отчеты',
+    feature: 'Конструктор отчётов',
+    status: 'not-started',
+    comment: 'Настраиваемые пользователем отчёты',
+    priority: 'medium',
+    estimatedHours: 20
+  },
+  {
+    id: '32.2',
+    category: 'Отчеты',
+    feature: 'Отчёт по меткам',
+    status: 'not-started',
+    comment: 'Аналитика использования тегов',
+    priority: 'low',
+    estimatedHours: 8
+  },
+  {
+    id: '32.3',
+    category: 'Отчеты',
+    feature: 'Эффективность сотрудников',
+    status: 'not-started',
+    comment: 'Метрики производительности агентов',
+    priority: 'medium',
+    estimatedHours: 16
+  },
+  {
+    id: '32.4',
+    category: 'Отчеты',
+    feature: 'Глобальный аудит',
+    status: 'not-started',
+    comment: 'Полный журнал действий в системе',
+    priority: 'medium',
+    estimatedHours: 12
+  },
+  {
+    id: '32.5',
+    category: 'Отчеты',
+    feature: 'CSAT опросники',
+    status: 'not-started',
+    comment: 'Расширенные опросы удовлетворённости',
+    priority: 'medium',
+    estimatedHours: 16
+  },
+  {
+    id: '32.6',
+    category: 'Отчеты',
+    feature: 'Индекс удовлетворённости клиентов',
+    status: 'not-started',
+    comment: 'Система оценки качества обслуживания',
+    priority: 'low',
+    estimatedHours: 12
+  },
+  {
+    id: '32.7',
+    category: 'Отчеты',
+    feature: 'Yandex Datalens интеграция',
+    status: 'not-started',
+    comment: 'Подключение к внешней аналитике',
+    priority: 'low',
+    estimatedHours: 8
+  },
+  {
+    id: '32.8',
+    category: 'Отчеты',
+    feature: 'Отчёт по суфлёру (AI)',
+    status: 'not-started',
+    comment: 'Аналитика использования AI помощника',
+    priority: 'low',
+    estimatedHours: 6
+  },
+
+  // Омниканальность
+  {
+    id: '33.1',
+    category: 'Омниканальность',
+    feature: 'Онлайн-чат виджет',
+    status: 'not-started',
+    comment: 'Встраиваемый чат для сайтов',
+    priority: 'high',
+    estimatedHours: 24
+  },
+  {
+    id: '33.2',
+    category: 'Омниканальность',
+    feature: 'Рабочее место оператора',
+    status: 'not-started',
+    comment: 'Единый интерфейс для всех каналов',
+    priority: 'high',
+    estimatedHours: 32
+  },
+  {
+    id: '33.3',
+    category: 'Омниканальность',
+    feature: 'Кнопки быстрых действий',
+    status: 'not-started',
+    comment: 'Настраиваемые действия в интерфейсе',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '33.4',
+    category: 'Омниканальность',
+    feature: 'Отчёт по операторам',
+    status: 'not-started',
+    comment: 'Метрики работы в омниканальном режиме',
+    priority: 'medium',
+    estimatedHours: 12
+  },
+  {
+    id: '33.5',
+    category: 'Омниканальность',
+    feature: 'Отчёт по каналам',
+    status: 'not-started',
+    comment: 'Аналитика эффективности каналов',
+    priority: 'medium',
+    estimatedHours: 12
+  },
+
+  // Автоматизация (Диспетчер)
+  {
+    id: '34.1',
+    category: 'Автоматизация',
+    feature: 'Диспетчер событий',
+    status: 'not-started',
+    comment: 'Система автоматических действий',
+    priority: 'high',
+    estimatedHours: 24
+  },
+  {
+    id: '34.2',
+    category: 'Автоматизация',
+    feature: 'Чат-боты через диспетчера',
+    status: 'not-started',
+    comment: 'Создание ботов без программирования',
+    priority: 'medium',
+    estimatedHours: 20
+  },
+  {
+    id: '34.3',
+    category: 'Автоматизация',
+    feature: 'Шаблоны уведомлений',
+    status: 'not-started',
+    comment: 'Настраиваемые шаблоны автоответов',
+    priority: 'medium',
+    estimatedHours: 12
+  },
+  {
+    id: '34.4',
+    category: 'Автоматизация',
+    feature: 'Условная логика обработки',
+    status: 'not-started',
+    comment: 'Сложные правила автоматизации',
+    priority: 'medium',
+    estimatedHours: 16
+  },
+  {
+    id: '34.5',
+    category: 'Автоматизация',
+    feature: 'Триггеры и правила',
+    status: 'not-started',
+    comment: 'Система событий и реакций',
+    priority: 'medium',
+    estimatedHours: 18
+  },
 
   // Дополнительные функции
   {
-    id: '33',
+    id: '35',
     category: 'Дополнительно',
     feature: 'Автосохранение черновиков',
     status: 'completed-demo',
@@ -349,7 +758,7 @@ const checklistData: ChecklistItem[] = [
     estimatedHours: 4
   },
   {
-    id: '34',
+    id: '36',
     category: 'Дополнительно',
     feature: 'История изменений тикета',
     status: 'completed-demo',
@@ -358,13 +767,40 @@ const checklistData: ChecklistItem[] = [
     estimatedHours: 8
   },
   {
-    id: '35',
+    id: '37',
     category: 'Дополнительно',
     feature: 'Мультиязычность',
     status: 'not-started',
     comment: 'i18n поддержка интерфейса',
     priority: 'low',
     estimatedHours: 20
+  },
+  {
+    id: '38',
+    category: 'Дополнительно',
+    feature: 'Расписание работы департаментов',
+    status: 'completed-demo',
+    comment: 'График работы сотрудников',
+    priority: 'medium',
+    estimatedHours: 8
+  },
+  {
+    id: '39',
+    category: 'Дополнительно',
+    feature: 'Система макросов',
+    status: 'completed-demo',
+    comment: 'Готовые шаблоны действий',
+    priority: 'medium',
+    estimatedHours: 6
+  },
+  {
+    id: '40',
+    category: 'Дополнительно',
+    feature: 'Эскалация тикетов',
+    status: 'completed-demo',
+    comment: 'Автоматическая передача сложных вопросов',
+    priority: 'high',
+    estimatedHours: 12
   }
 ];
 
