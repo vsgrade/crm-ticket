@@ -30,10 +30,13 @@ import {
 } from "lucide-react";
 import { mockDepartments } from "@/data/mockData";
 import { DepartmentSettingsModal } from "@/components/modals/DepartmentSettingsModal";
+import IntegrationSettingsModal from "@/components/modals/IntegrationSettingsModal";
 import { useState } from "react";
 
 const Departments = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<{ id: string; name: string } | null>(null);
+  const [selectedIntegration, setSelectedIntegration] = useState<any>(null);
+  const [integrationSettingsOpen, setIntegrationSettingsOpen] = useState(false);
   const getIntegrationIcon = (type: string) => {
     const iconMap = {
       'telegram': '📱',
@@ -76,6 +79,14 @@ const Departments = () => {
           </Badge>
         );
     }
+  };
+
+  const handleIntegrationSettings = (integration: any, departmentName: string) => {
+    setSelectedIntegration({
+      ...integration,
+      departmentName
+    });
+    setIntegrationSettingsOpen(true);
   };
 
   const getWorkingHours = (hours: any) => {
@@ -234,7 +245,11 @@ const Departments = () => {
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {dept.integrations.slice(0, 3).map((integration, idx) => (
-                            <div key={idx} className="flex items-center gap-1 text-xs">
+                            <div 
+                              key={idx} 
+                              className="flex items-center gap-1 text-xs cursor-pointer hover:bg-accent/50 p-1 rounded"
+                              onClick={() => handleIntegrationSettings(integration, dept.name)}
+                            >
                               <span>{getIntegrationIcon(integration.type)}</span>
                               <span>{integration.name}</span>
                               {getStatusBadge(integration.status)}
@@ -309,12 +324,28 @@ const Departments = () => {
                         <span>2 интеграции</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        <div className="flex items-center gap-1 text-xs">
+                        <div 
+                          className="flex items-center gap-1 text-xs cursor-pointer hover:bg-accent/50 p-1 rounded"
+                          onClick={() => handleIntegrationSettings({ 
+                            id: 'email-billing', 
+                            name: 'Email', 
+                            type: 'email', 
+                            status: 'active' 
+                          }, 'Бухгалтерия')}
+                        >
                           <span>📧</span>
                           <span>Email</span>
                           {getStatusBadge('active')}
                         </div>
-                        <div className="flex items-center gap-1 text-xs">
+                        <div 
+                          className="flex items-center gap-1 text-xs cursor-pointer hover:bg-accent/50 p-1 rounded"
+                          onClick={() => handleIntegrationSettings({ 
+                            id: 'telegram-billing', 
+                            name: 'Telegram', 
+                            type: 'telegram', 
+                            status: 'warning' 
+                          }, 'Бухгалтерия')}
+                        >
                           <span>📱</span>
                           <span>Telegram</span>
                           {getStatusBadge('warning')}
@@ -374,7 +405,15 @@ const Departments = () => {
                         <span>1 интеграция</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        <div className="flex items-center gap-1 text-xs">
+                        <div 
+                          className="flex items-center gap-1 text-xs cursor-pointer hover:bg-accent/50 p-1 rounded"
+                          onClick={() => handleIntegrationSettings({ 
+                            id: 'email-hr', 
+                            name: 'Email', 
+                            type: 'email', 
+                            status: 'error' 
+                          }, 'HR Отдел')}
+                        >
                           <span>📧</span>
                           <span>Email</span>
                           {getStatusBadge('error')}
@@ -416,6 +455,16 @@ const Departments = () => {
         onOpenChange={(open) => !open && setSelectedDepartment(null)}
         departmentId={selectedDepartment?.id}
         departmentName={selectedDepartment?.name}
+      />
+
+      {/* Модал настроек интеграции департамента */}
+      <IntegrationSettingsModal
+        open={integrationSettingsOpen}
+        onOpenChange={setIntegrationSettingsOpen}
+        integration={selectedIntegration ? {
+          ...selectedIntegration,
+          name: `${selectedIntegration.name} (${selectedIntegration.departmentName})`
+        } : null}
       />
     </div>
   );
