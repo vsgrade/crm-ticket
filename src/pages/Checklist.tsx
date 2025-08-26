@@ -51,8 +51,8 @@ const checklistData: ChecklistItem[] = [
     id: '3',
     category: 'Интеграции мессенджеров',
     feature: 'Интеграция WhatsApp (обычный через QR)',
-    status: 'in-progress',
-    comment: 'Разработка Web API интеграции',
+    status: 'completed-demo',
+    comment: 'Интерфейс для QR-код интеграции готов',
     priority: 'high',
     estimatedHours: 16
   },
@@ -68,27 +68,27 @@ const checklistData: ChecklistItem[] = [
   {
     id: '4.1',
     category: 'Интеграции мессенджеров',
-    feature: 'Интеграция Яндекс мессенджер',
-    status: 'not-started',
-    comment: 'Подключение к Яндекс мессенджеру',
+    feature: 'Интеграция Viber Business',
+    status: 'completed-demo',
+    comment: 'Интерфейс мониторинга и настроек готов',
     priority: 'medium',
     estimatedHours: 8
   },
   {
     id: '4.2',
     category: 'Интеграции мессенджеров',
-    feature: 'Интеграция MAX',
-    status: 'not-started',
-    comment: 'Интеграция с MAX мессенджером',
+    feature: 'Интеграция Facebook Messenger',
+    status: 'completed-demo',
+    comment: 'Полный интерфейс с метриками реализован',
     priority: 'medium',
     estimatedHours: 8
   },
   {
     id: '4.3',
     category: 'Интеграции мессенджеров',
-    feature: 'Telegram Business интеграция',
-    status: 'not-started',
-    comment: 'Интеграция с Telegram Business API',
+    feature: 'Интеграция Instagram Direct',
+    status: 'completed-demo',
+    comment: 'Интерфейс готов, требует настройки API',
     priority: 'medium',
     estimatedHours: 10
   },
