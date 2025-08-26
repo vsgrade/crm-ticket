@@ -206,9 +206,17 @@ const Settings = () => {
               </Card>
 
             </div>
-          </TabsContent>
+        </TabsContent>
 
-          <TabsContent value="security" className="space-y-6">
+        <TabsContent value="contacts">
+          <ContactFieldsManager />
+        </TabsContent>
+
+        <TabsContent value="filters">
+          <SavedFiltersManager />
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-6">
             <Card className="border-2 hover:border-primary/20 transition-colors">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
