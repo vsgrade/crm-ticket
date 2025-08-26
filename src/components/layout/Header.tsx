@@ -147,7 +147,7 @@ const Header = () => {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start gap-2 px-3"
-                      onClick={() => navigate('/settings')}
+                      onClick={() => navigate('/profile')}
                     >
                       <UserCog className="h-4 w-4" />
                       Настройки профиля

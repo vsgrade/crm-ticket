@@ -29,6 +29,7 @@ import SMS from "./pages/integrations/SMS";
 import AddIntegration from "./pages/integrations/AddIntegration";
 import Salary from "./pages/Salary";
 import Schedule from "./pages/Schedule";
+import ProfileSettings from "./pages/ProfileSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="/integrations/add" element={<AddIntegration />} />
               <Route path="/salary" element={<Salary />} />
               <Route path="/schedule" element={<Schedule />} />
+              <Route path="/profile" element={<ProfileSettings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
