@@ -26,18 +26,30 @@ import {
   Paperclip,
   Trash2,
   Archive,
-  UserPlus
+  UserPlus,
+  Settings,
+  Tag,
+  Download,
+  MessageCircle
 } from "lucide-react";
 import { mockTickets, mockClients, mockEmployees, Ticket } from "@/data/mockData";
 import CreateTicketModal from "@/components/modals/CreateTicketModal";
 import TicketDetailModal from "@/components/modals/TicketDetailModal";
 import FullPageTicketModal from "@/components/modals/FullPageTicketModal";
 import TicketFilters, { TicketFilter } from "@/components/TicketFilters";
+import TicketCustomFieldsModal from "@/components/modals/TicketCustomFieldsModal";
+import TicketTagsModal from "@/components/modals/TicketTagsModal";
+import TicketExportModal from "@/components/modals/TicketExportModal";
+import InitiateConversationModal from "@/components/modals/InitiateConversationModal";
 
 const Tickets = () => {
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [ticketDetailOpen, setTicketDetailOpen] = useState(false);
   const [fullPageOpen, setFullPageOpen] = useState(false);
+  const [customFieldsOpen, setCustomFieldsOpen] = useState(false);
+  const [tagsModalOpen, setTagsModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [conversationModalOpen, setConversationModalOpen] = useState(false);
   const [filter, setFilter] = useState<TicketFilter>({});
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   
@@ -201,6 +213,37 @@ const Tickets = () => {
         </div>
         
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setCustomFieldsOpen(true)}
+            disabled={selectedTickets.length !== 1}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Кастомные поля
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setTagsModalOpen(true)}
+            disabled={selectedTickets.length !== 1}
+          >
+            <Tag className="h-4 w-4 mr-2" />
+            Теги
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setExportModalOpen(true)}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Экспорт
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setConversationModalOpen(true)}
+            disabled={selectedTickets.length !== 1}
+          >
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Написать клиенту
+          </Button>
           <CreateTicketModal />
         </div>
       </div>
@@ -227,6 +270,10 @@ const Tickets = () => {
                 <Button variant="outline" size="sm">
                   <Archive className="h-4 w-4 mr-2" />
                   Архивировать
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Экспорт
                 </Button>
                 <Button variant="outline" size="sm" className="text-destructive">
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -418,6 +465,30 @@ const Tickets = () => {
         open={fullPageOpen}
         onOpenChange={setFullPageOpen}
         ticketId={selectedTicket || undefined}
+      />
+
+      <TicketCustomFieldsModal
+        open={customFieldsOpen}
+        onOpenChange={setCustomFieldsOpen}
+        ticketId={selectedTicket || undefined}
+      />
+
+      <TicketTagsModal
+        open={tagsModalOpen}
+        onOpenChange={setTagsModalOpen}
+        ticketId={selectedTicket || undefined}
+      />
+
+      <TicketExportModal
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+        selectedTickets={selectedTickets}
+      />
+
+      <InitiateConversationModal
+        open={conversationModalOpen}
+        onOpenChange={setConversationModalOpen}
+        clientId={selectedTicket ? mockTickets.find(t => t.id === selectedTicket)?.clientId : undefined}
       />
     </div>
   );
