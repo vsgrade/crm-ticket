@@ -190,8 +190,8 @@ const checklistData: ChecklistItem[] = [
     id: '10',
     category: 'SLA',
     feature: 'Мониторинг и уведомления SLA',
-    status: 'in-progress',
-    comment: 'Базовый расчет готов, нужны уведомления',
+    status: 'completed-demo',
+    comment: 'Система уведомлений с настройками email, SMS и в системе',
     priority: 'high',
     estimatedHours: 16
   },
@@ -199,8 +199,8 @@ const checklistData: ChecklistItem[] = [
     id: '11',
     category: 'SLA',
     feature: 'Отчетность по SLA',
-    status: 'in-progress',
-    comment: 'Статистика в разработке',
+    status: 'completed-demo',
+    comment: 'Детальная отчетность по периодам и департаментам с экспортом',
     priority: 'medium',
     estimatedHours: 12
   },
