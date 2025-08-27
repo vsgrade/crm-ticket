@@ -60,9 +60,46 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Настройка app.js для развертывания
+
+При развертывании на сервере через aaPanel или другие хостинг-панели, возможно потребуется настроить файл `app.js`:
+
+### Изменение порта
+
+По умолчанию сервер запускается на порту 3000. Если ваш Nginx настроен на другой порт, измените:
+
+```javascript
+const PORT = process.env.PORT || 3002; // Замените 3002 на нужный порт
+```
+
+### Путь к статическим файлам
+
+Если проект находится в другой директории, обновите пути:
+
+```javascript
+// Убедитесь, что путь к dist правильный
+app.use(
+  express.static(path.join(__dirname, 'dist'), {
+    maxAge: '1y',
+    etag: false,
+  })
+);
+```
+
+### Переменные окружения
+
+Для продакшен-среды рекомендуется установить:
+
+```bash
+export NODE_ENV=production
+export PORT=3002
+```
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/60928d64-0ec6-4512-8130-8d3c8a00a6ae) and click on Share -> Publish.
+
+**Для развертывания на собственном сервере** см. `AAPANEL_DEPLOYMENT.md` для подробных инструкций.
 
 ## Can I connect a custom domain to my Lovable project?
 
