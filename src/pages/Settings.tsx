@@ -208,11 +208,20 @@ const Settings = () => {
                 </CardContent>
               </Card>
 
-            </div>
-        </TabsContent>
+              <Card className="border-2 hover:border-primary/20 transition-colors">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Поля контактов
+                  </CardTitle>
+                  <CardDescription>Управление полями для профилей клиентов</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ContactFieldsManager />
+                </CardContent>
+              </Card>
 
-        <TabsContent value="contacts">
-          <ContactFieldsManager />
+            </div>
         </TabsContent>
 
         <TabsContent value="filters">
