@@ -160,7 +160,8 @@ const SavedFiltersManager = () => {
         department: [],
         assignee: [],
         dateRange: { start: '', end: '' },
-        tags: []
+        tags: [],
+        customFields: {}
       },
       isPublic: false,
       isFavorite: false
@@ -172,7 +173,18 @@ const SavedFiltersManager = () => {
     setNewFilter({
       name: filter.name,
       description: filter.description,
-      filters: filter.filters,
+      filters: {
+        status: filter.filters.status ?? [],
+        priority: filter.filters.priority ?? [],
+        department: filter.filters.department ?? [],
+        assignee: filter.filters.assignee ?? [],
+        dateRange: {
+          start: filter.filters.dateRange?.start ?? '',
+          end: filter.filters.dateRange?.end ?? ''
+        },
+        tags: filter.filters.tags ?? [],
+        customFields: filter.filters.customFields ?? {}
+      },
       isPublic: filter.isPublic,
       isFavorite: filter.isFavorite
     });

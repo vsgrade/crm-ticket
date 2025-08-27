@@ -70,7 +70,15 @@ const ContactFieldsManager = () => {
     if (editingField) {
       setContactFields(contactFields.map(field => 
         field.id === editingField.id 
-          ? { ...editingField, ...newField, id: editingField.id, icon: editingField.icon }
+          ? {
+              ...editingField,
+              ...newField,
+              id: editingField.id,
+              icon: editingField.icon,
+              type: newField.type as ContactField['type'],
+              category: newField.category as ContactField['category'],
+              options: newField.type === 'select' ? (newField.options ?? []) : undefined,
+            }
           : field
       ));
       setEditingField(null);

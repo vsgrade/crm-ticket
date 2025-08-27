@@ -25,6 +25,9 @@ import {
   Plus
 } from "lucide-react";
 
+import ContactFieldsManager from "@/components/ContactFieldsManager";
+import SavedFiltersManager from "@/components/SavedFiltersManager";
+
 const Settings = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState({
