@@ -95,32 +95,84 @@ npm run build
 2. Найдите ваш сайт и нажмите **"Config"**
 3. Выберите **"Site directory binding"**
 4. Установите **Document Root** в `/www/wwwroot/ticketpro/dist`
-5. В разделе **"Conf"** добавьте конфигурацию для SPA:
+5. В разделе **"Conf"** замените содержимое на полную конфигурацию:
 
 ```nginx
-location / {
-    try_files $uri $uri/ /index.html;
+server
+{
+    listen 80;
+    listen 443 ssl;
+    server_name your-domain.com;  # Замените на ваш домен
+    index index.html;
+    root /www/wwwroot/ticketpro/dist;  # Путь к собранному проекту
+    
+    #SSL-START SSL related configuration
+    ssl_certificate    /www/server/panel/vhost/cert/your-domain/fullchain.pem;
+    ssl_certificate_key    /www/server/panel/vhost/cert/your-domain/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    add_header Strict-Transport-Security "max-age=31536000";
+    error_page 497 https://$host$request_uri;
+    #SSL-END
+    
+    # Основная конфигурация для React SPA
+    location / {
+        try_files $uri $uri/ /index.html;
+        
+        # Заголовки безопасности
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
+    
+    # Кеширование статических ресурсов
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+    
+    # Запрет доступа к служебным файлам
+    location ~ ^/(\.user\.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|README\.md|package\.json|package-lock\.json|\.env|node_modules) {
+        return 404;
+    }
+    
+    # Настройки для Let's Encrypt
+    location /.well-known/ {
+        root /www/wwwroot/ticketpro/dist;
+    }
+    
+    # Gzip сжатие
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        text/json
+        application/javascript
+        application/xml+rss
+        application/json
+        application/xml
+        image/svg+xml;
+    
+    access_log /www/wwwlogs/your-domain.log;
+    error_log /www/wwwlogs/your-domain.error.log;
 }
-
-# Кеширование статических ресурсов
-location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-}
-
-# Gzip сжатие
-gzip on;
-gzip_vary on;
-gzip_min_length 1024;
-gzip_types
-    text/plain
-    text/css
-    text/xml
-    text/javascript
-    application/javascript
-    application/xml+rss
-    application/json;
 ```
+
+**Важные замены в конфигурации:**
+- `your-domain.com` → ваш реальный домен
+- `/www/server/panel/vhost/cert/your-domain/` → путь к вашему SSL сертификату
+- `/www/wwwroot/ticketpro/dist` → путь к собранному проекту
 
 ### 6.2 Для Apache
 
