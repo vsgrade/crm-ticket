@@ -23,7 +23,8 @@ import {
   Star,
   Calendar,
   DollarSign,
-  ClipboardList
+  ClipboardList,
+  Database
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,7 @@ const navigation = [
   {
     title: "Система",
     items: [
+      { name: "Системные настройки", href: "/system-fields", icon: Database, badge: null },
       { name: "Чеклист проекта", href: "/checklist", icon: CheckSquare, badge: null },
       { name: "Настройки", href: "/settings", icon: Settings, badge: null },
       { name: "Архив", href: "/archive", icon: Archive, badge: null },
