@@ -65,6 +65,13 @@
 npm install
 ```
 
+### 3.3 Установка Express для сервера (обязательно)
+
+Установите дополнительные зависимости для Node.js сервера:
+```bash
+npm install express compression
+```
+
 ## Шаг 4: Настройка переменных окружения
 
 ### 4.1 Создание файла .env
@@ -87,9 +94,80 @@ npm run build
 
 Это создаст папку `dist` с оптимизированными файлами для production.
 
-## Шаг 6: Настройка веб-сервера
+## Шаг 6: Настройка Node.js приложения (рекомендуется)
 
-### 6.1 Для Nginx (рекомендуется)
+### 6.1 Запуск через Node.js Manager
+
+1. В aaPanel перейдите в **"Node.js Manager"**
+2. Нажмите **"Add Project"**
+3. Заполните форму:
+   - **Project Path**: `/www/wwwroot/ticketpro`
+   - **Startup File**: `app.js`
+   - **Port**: `3000` (или любой свободный порт)
+   - **Project Name**: `ticketpro`
+4. Нажмите **"Submit"**
+5. Запустите проект нажав **"Start"**
+
+### 6.2 Настройка прокси в Nginx
+
+1. В разделе **"Website"** найдите ваш сайт
+2. Нажмите **"Config"** → **"Conf"**
+3. Замените содержимое конфигурации:
+
+```nginx
+server
+{
+    listen 80;
+    listen 443 ssl;
+    server_name your-domain.com;  # Замените на ваш домен
+    index index.html;
+    
+    #SSL-START SSL related configuration
+    ssl_certificate    /www/server/panel/vhost/cert/your-domain/fullchain.pem;
+    ssl_certificate_key    /www/server/panel/vhost/cert/your-domain/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    add_header Strict-Transport-Security "max-age=31536000";
+    error_page 497 https://$host$request_uri;
+    #SSL-END
+    
+    # Проксирование к Node.js приложению
+    location / {
+        proxy_pass http://127.0.0.1:3000;  # Порт из настроек Node.js Manager
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 30s;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 30s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    
+    # Запрет доступа к служебным файлам
+    location ~ ^/(\.user\.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|README\.md|package\.json|package-lock\.json|\.env|node_modules) {
+        return 404;
+    }
+    
+    # Настройки для Let's Encrypt
+    location /.well-known/ {
+        root /www/wwwroot/ticketpro;
+    }
+    
+    access_log /www/wwwlogs/your-domain.log;
+    error_log /www/wwwlogs/your-domain.error.log;
+}
+```
+
+## Шаг 7: Альтернативный способ - статические файлы
+
+### 7.1 Для Nginx (только статические файлы)
 
 1. В aaPanel перейдите в **"Website"**
 2. Найдите ваш сайт и нажмите **"Config"**
