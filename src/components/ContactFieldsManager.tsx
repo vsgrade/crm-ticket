@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Phone, Mail, MapPin, Building, User, Calendar } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Edit, Trash2, Phone, Mail, MapPin, Building, User, Calendar, Settings, Download, Upload } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ContactField {
   id: string;
@@ -28,6 +30,7 @@ interface StaffStatus {
 }
 
 const ContactFieldsManager = () => {
+  const { toast } = useToast();
   const [isFieldModalOpen, setIsFieldModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [editingField, setEditingField] = useState<ContactField | null>(null);
@@ -48,23 +51,45 @@ const ContactFieldsManager = () => {
     isActive: true
   });
 
-  const [contactFields, setContactFields] = useState<ContactField[]>([
-    { id: '1', name: 'Имя', type: 'text', required: true, icon: User, category: 'personal' },
-    { id: '2', name: 'Email', type: 'email', required: true, icon: Mail, category: 'personal' },
-    { id: '3', name: 'Телефон', type: 'phone', required: false, icon: Phone, category: 'personal' },
-    { id: '4', name: 'Адрес', type: 'textarea', required: false, icon: MapPin, category: 'personal' },
-    { id: '5', name: 'Компания', type: 'text', required: false, icon: Building, category: 'company' },
-    { id: '6', name: 'Должность', type: 'text', required: false, icon: User, category: 'company' },
-    { id: '7', name: 'Дата рождения', type: 'date', required: false, icon: Calendar, category: 'personal' }
-  ]);
+  const [contactFields, setContactFields] = useState<ContactField[]>([]);
 
-  const [staffStatuses, setStaffStatuses] = useState<StaffStatus[]>([
-    { id: '1', name: 'Онлайн', color: '#10b981', description: 'Доступен для работы', isActive: true },
-    { id: '2', name: 'Занят', color: '#f59e0b', description: 'Работает с клиентом', isActive: true },
-    { id: '3', name: 'Отошел', color: '#6b7280', description: 'Временно недоступен', isActive: true },
-    { id: '4', name: 'Обед', color: '#ef4444', description: 'На обеденном перерыве', isActive: true },
-    { id: '5', name: 'Оффлайн', color: '#374151', description: 'Не на рабочем месте', isActive: false }
-  ]);
+  const [staffStatuses, setStaffStatuses] = useState<StaffStatus[]>([]);
+
+  // Загрузка данных из localStorage
+  useEffect(() => {
+    const savedFields = localStorage.getItem('contactFields');
+    const savedStatuses = localStorage.getItem('staffStatuses');
+    
+    if (savedFields) {
+      setContactFields(JSON.parse(savedFields));
+    } else {
+      const defaultFields: ContactField[] = [
+        { id: '1', name: 'Имя', type: 'text', required: true, icon: User, category: 'personal' },
+        { id: '2', name: 'Email', type: 'email', required: true, icon: Mail, category: 'personal' },
+        { id: '3', name: 'Телефон', type: 'phone', required: false, icon: Phone, category: 'personal' },
+        { id: '4', name: 'Адрес', type: 'textarea', required: false, icon: MapPin, category: 'personal' },
+        { id: '5', name: 'Компания', type: 'text', required: false, icon: Building, category: 'company' },
+        { id: '6', name: 'Должность', type: 'text', required: false, icon: User, category: 'company' },
+        { id: '7', name: 'Дата рождения', type: 'date', required: false, icon: Calendar, category: 'personal' }
+      ];
+      setContactFields(defaultFields);
+      localStorage.setItem('contactFields', JSON.stringify(defaultFields));
+    }
+    
+    if (savedStatuses) {
+      setStaffStatuses(JSON.parse(savedStatuses));
+    } else {
+      const defaultStatuses: StaffStatus[] = [
+        { id: '1', name: 'Онлайн', color: '#10b981', description: 'Доступен для работы', isActive: true },
+        { id: '2', name: 'Занят', color: '#f59e0b', description: 'Работает с клиентом', isActive: true },
+        { id: '3', name: 'Отошел', color: '#6b7280', description: 'Временно недоступен', isActive: true },
+        { id: '4', name: 'Обед', color: '#ef4444', description: 'На обеденном перерыве', isActive: true },
+        { id: '5', name: 'Оффлайн', color: '#374151', description: 'Не на рабочем месте', isActive: false }
+      ];
+      setStaffStatuses(defaultStatuses);
+      localStorage.setItem('staffStatuses', JSON.stringify(defaultStatuses));
+    }
+  }, []);
 
   const handleSaveField = () => {
     if (editingField) {
@@ -94,6 +119,30 @@ const ContactFieldsManager = () => {
     }
     setIsFieldModalOpen(false);
     setNewField({ name: '', type: 'text', required: false, options: [''], category: 'custom' });
+    localStorage.setItem('contactFields', JSON.stringify(editingField ? contactFields.map(field => 
+      field.id === editingField.id 
+        ? {
+            ...editingField,
+            ...newField,
+            id: editingField.id,
+            icon: editingField.icon,
+            type: newField.type as ContactField['type'],
+            category: newField.category as ContactField['category'],
+            options: newField.type === 'select' ? (newField.options ?? []) : undefined,
+          }
+        : field
+    ) : [...contactFields, {
+      ...newField,
+      id: Date.now().toString(),
+      icon: User,
+      type: newField.type as ContactField['type'],
+      category: newField.category as ContactField['category']
+    }]));
+    
+    toast({
+      title: editingField ? "Поле обновлено" : "Поле создано",
+      description: `Поле "${newField.name}" ${editingField ? 'обновлено' : 'добавлено'} в систему`,
+    });
   };
 
   const handleSaveStatus = () => {
@@ -110,6 +159,16 @@ const ContactFieldsManager = () => {
     }
     setIsStatusModalOpen(false);
     setNewStatus({ name: '', color: '#10b981', description: '', isActive: true });
+    localStorage.setItem('staffStatuses', JSON.stringify(editingStatus ? staffStatuses.map(status => 
+      status.id === editingStatus.id 
+        ? { ...editingStatus, ...newStatus }
+        : status
+    ) : [...staffStatuses, { ...newStatus, id: Date.now().toString() }]));
+    
+    toast({
+      title: editingStatus ? "Статус обновлен" : "Статус создан",
+      description: `Статус "${newStatus.name}" ${editingStatus ? 'обновлен' : 'добавлен'} в систему`,
+    });
   };
 
   const handleEditField = (field: ContactField) => {
@@ -136,11 +195,77 @@ const ContactFieldsManager = () => {
   };
 
   const handleDeleteField = (id: string) => {
-    setContactFields(contactFields.filter(field => field.id !== id));
+    const updated = contactFields.filter(field => field.id !== id);
+    setContactFields(updated);
+    localStorage.setItem('contactFields', JSON.stringify(updated));
+    
+    toast({
+      title: "Поле удалено",
+      description: "Поле контакта удалено из системы",
+    });
   };
 
   const handleDeleteStatus = (id: string) => {
-    setStaffStatuses(staffStatuses.filter(status => status.id !== id));
+    const updated = staffStatuses.filter(status => status.id !== id);
+    setStaffStatuses(updated);
+    localStorage.setItem('staffStatuses', JSON.stringify(updated));
+    
+    toast({
+      title: "Статус удален",
+      description: "Статус сотрудника удален из системы",
+    });
+  };
+
+  const exportSettings = () => {
+    const settings = {
+      contactFields,
+      staffStatuses,
+      exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'system-fields-settings.json';
+    a.click();
+    
+    toast({
+      title: "Настройки экспортированы",
+      description: "Файл с настройками полей сохранен",
+    });
+  };
+
+  const importSettings = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const settings = JSON.parse(e.target?.result as string);
+        if (settings.contactFields) {
+          setContactFields(settings.contactFields);
+          localStorage.setItem('contactFields', JSON.stringify(settings.contactFields));
+        }
+        if (settings.staffStatuses) {
+          setStaffStatuses(settings.staffStatuses);
+          localStorage.setItem('staffStatuses', JSON.stringify(settings.staffStatuses));
+        }
+        
+        toast({
+          title: "Настройки импортированы",
+          description: "Системные поля обновлены из файла",
+        });
+      } catch (error) {
+        toast({
+          title: "Ошибка импорта",
+          description: "Некорректный формат файла",
+          variant: "destructive"
+        });
+      }
+    };
+    reader.readAsText(file);
   };
 
   const groupedFields = contactFields.reduce((acc, field) => {
@@ -157,8 +282,49 @@ const ContactFieldsManager = () => {
 
   return (
     <div className="space-y-6">
-      {/* Contact Fields Section */}
+      {/* System Settings Header */}
       <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Управление системными полями
+              </CardTitle>
+              <CardDescription>Импорт/экспорт настроек и управление полями</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="file"
+                accept=".json"
+                onChange={importSettings}
+                className="hidden"
+                id="import-settings"
+              />
+              <Button variant="outline" asChild>
+                <label htmlFor="import-settings" className="cursor-pointer">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Импорт
+                </label>
+              </Button>
+              <Button variant="outline" onClick={exportSettings}>
+                <Download className="h-4 w-4 mr-2" />
+                Экспорт
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Tabs defaultValue="fields" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="fields">Поля контактов</TabsTrigger>
+          <TabsTrigger value="statuses">Статусы сотрудников</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="fields">
+          {/* Contact Fields Section */}
+          <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -287,11 +453,13 @@ const ContactFieldsManager = () => {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        </TabsContent>
 
-      {/* Staff Statuses Section */}
-      <Card>
+        <TabsContent value="statuses">
+          {/* Staff Statuses Section */}
+          <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -393,8 +561,10 @@ const ContactFieldsManager = () => {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

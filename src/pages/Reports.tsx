@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -29,12 +30,36 @@ import {
   Clock,
   MessageSquare,
   Target,
-  Calendar
+  Calendar,
+  Plus,
+  Settings,
+  Save,
+  Trash2
 } from "lucide-react";
+import ReportBuilderModal from "@/components/modals/ReportBuilderModal";
+import { useToast } from "@/hooks/use-toast";
+
+interface ReportConfig {
+  id: string;
+  name: string;
+  description: string;
+  type: 'overview' | 'tickets' | 'staff' | 'sla' | 'custom';
+  chartType: 'bar' | 'line' | 'pie' | 'table';
+  metrics: string[];
+  filters: any;
+  groupBy: string;
+  sortBy: string;
+  exportFormats: string[];
+  createdAt: Date;
+}
 
 const Reports = () => {
+  const { toast } = useToast();
   const [dateRange, setDateRange] = useState<any>(null);
   const [department, setDepartment] = useState("all");
+  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [customReports, setCustomReports] = useState<ReportConfig[]>([]);
+  const [editingReport, setEditingReport] = useState<ReportConfig | null>(null);
 
   // Данные для графиков (демо)
   const ticketsByDay = [
@@ -73,8 +98,98 @@ const Reports = () => {
     { name: "Морозов Д.К.", tickets: 81, avgTime: 2.1, satisfaction: 4.8 }
   ];
 
+  // Загрузка сохраненных отчетов
+  useEffect(() => {
+    const saved = localStorage.getItem('customReports');
+    if (saved) {
+      const parsed = JSON.parse(saved).map((report: any) => ({
+        ...report,
+        createdAt: new Date(report.createdAt)
+      }));
+      setCustomReports(parsed);
+    }
+  }, []);
+
   const exportReport = (format: string) => {
-    console.log(`Экспорт отчета в формате ${format} - демо функция`);
+    const data = {
+      overview: { totalTickets: 1247, avgResolutionTime: '4.2ч', slaCompliance: '92.1%', satisfaction: '4.7/5' },
+      ticketsByDay,
+      ticketsByDepartment,
+      slaCompliance,
+      staffPerformance
+    };
+    
+    if (format === 'json') {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+    } else if (format === 'csv') {
+      const csvData = [
+        ['Дата', 'Создано', 'Решено', 'В работе'],
+        ...ticketsByDay.map(day => [day.date, day.created, day.resolved, day.pending])
+      ].map(row => row.join(',')).join('\n');
+      
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+    
+    toast({
+      title: "Экспорт завершен",
+      description: `Отчет экспортирован в формате ${format.toUpperCase()}`,
+    });
+  };
+
+  const handleSaveReport = (reportConfig: ReportConfig) => {
+    const reportWithDate = {
+      ...reportConfig,
+      createdAt: new Date()
+    };
+    
+    const updated = editingReport 
+      ? customReports.map(r => r.id === editingReport.id ? reportWithDate : r)
+      : [...customReports, reportWithDate];
+    
+    setCustomReports(updated);
+    localStorage.setItem('customReports', JSON.stringify(updated));
+    setEditingReport(null);
+  };
+
+  const handleEditReport = (report: ReportConfig) => {
+    setEditingReport(report);
+    setIsBuilderOpen(true);
+  };
+
+  const handleDeleteReport = (reportId: string) => {
+    const updated = customReports.filter(r => r.id !== reportId);
+    setCustomReports(updated);
+    localStorage.setItem('customReports', JSON.stringify(updated));
+    
+    toast({
+      title: "Отчет удален",
+      description: "Настраиваемый отчет был удален",
+    });
+  };
+
+  const runCustomReport = (report: ReportConfig) => {
+    toast({
+      title: "Запуск отчета",
+      description: `Генерируется отчет "${report.name}"...`,
+    });
+    
+    // Здесь была бы логика генерации отчета
+    setTimeout(() => {
+      toast({
+        title: "Отчет готов",
+        description: `Отчет "${report.name}" успешно сгенерирован`,
+      });
+    }, 2000);
   };
 
   return (
@@ -111,10 +226,17 @@ const Reports = () => {
                 <SelectItem value="billing">Бухгалтерия</SelectItem>
               </SelectContent>
             </Select>
-            <Button className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Экспорт
-            </Button>
+            <Select onValueChange={exportReport}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Экспорт" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="excel">Excel</SelectItem>
+                <SelectItem value="csv">CSV</SelectItem>
+                <SelectItem value="pdf">PDF</SelectItem>
+                <SelectItem value="json">JSON</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
@@ -361,25 +483,99 @@ const Reports = () => {
           <TabsContent value="custom" className="space-y-6">
             <Card className="border-2">
               <CardHeader>
-                <CardTitle>Настраиваемые отчеты</CardTitle>
-                <CardDescription>Создайте собственные отчеты с нужными метриками</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Конструктор отчетов</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Функция находится в разработке
-                  </p>
-                  <Button variant="outline">
-                    Запросить демо
-                  </Button>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Настраиваемые отчеты</CardTitle>
+                    <CardDescription>Создайте собственные отчеты с нужными метриками</CardDescription>
+                  </div>
+                  <Dialog open={isBuilderOpen} onOpenChange={setIsBuilderOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => setEditingReport(null)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Создать отчет
+                      </Button>
+                    </DialogTrigger>
+                  </Dialog>
                 </div>
+              </CardHeader>
+              <CardContent>
+                {customReports.length === 0 ? (
+                  <div className="text-center py-12">
+                    <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Создайте свой первый отчет</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Используйте конструктор отчетов для создания настраиваемой аналитики
+                    </p>
+                    <Button onClick={() => setIsBuilderOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Создать отчет
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {customReports.map((report) => (
+                      <Card key={report.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg">{report.name}</CardTitle>
+                              <CardDescription className="text-sm">{report.description}</CardDescription>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditReport(report)}>
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteReport(report.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <Badge variant="outline">{report.type}</Badge>
+                            <Badge variant="outline">{report.chartType}</Badge>
+                            <Badge variant="secondary">{report.metrics.length} метрик</Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground mb-3">
+                            Создан: {report.createdAt.toLocaleDateString('ru-RU')}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={() => runCustomReport(report)}>
+                              Запустить
+                            </Button>
+                            <Select onValueChange={(format) => {
+                              toast({ title: "Экспорт отчета", description: `Экспорт "${report.name}" в ${format}` });
+                            }}>
+                              <SelectTrigger className="w-24 h-9">
+                                <Download className="h-3 w-3" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {report.exportFormats.map(format => (
+                                  <SelectItem key={format} value={format}>
+                                    {format.toUpperCase()}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+
+      <ReportBuilderModal
+        open={isBuilderOpen}
+        onOpenChange={setIsBuilderOpen}
+        report={editingReport}
+        onSave={handleSaveReport}
+      />
     </div>
   );
 };

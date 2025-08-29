@@ -16,10 +16,13 @@ import {
   TrendingUp,
   Users,
   Clock,
-  ThumbsUp
+  ThumbsUp,
+  Download,
+  Filter
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ArticleEditorModal from "@/components/modals/ArticleEditorModal";
 
 interface Article {
   id: string;
@@ -30,6 +33,12 @@ interface Article {
   likes: number;
   lastUpdated: Date;
   author: string;
+  tags: string[];
+  isPublic: boolean;
+  allowComments: boolean;
+  metaDescription: string;
+  slug: string;
+  status: 'draft' | 'published' | 'archived';
 }
 
 interface Category {
@@ -46,6 +55,9 @@ const Knowledge = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [articles, setArticles] = useState<Article[]>([]);
 
   const categories: Category[] = [
     {
@@ -85,77 +97,121 @@ const Knowledge = () => {
     }
   ];
 
-  const popularArticles: Article[] = [
-    {
-      id: "1",
-      title: "Как сбросить пароль в системе",
-      content: "Подробная инструкция по восстановлению доступа к аккаунту...",
-      categoryId: "auth",
-      views: 1247,
-      likes: 89,
-      lastUpdated: new Date("2024-01-10"),
-      author: "Мария Иванова"
-    },
-    {
-      id: "2", 
-      title: "Настройка двухфакторной аутентификации",
-      content: "Пошаговое руководство по настройке 2FA для повышения безопасности...",
-      categoryId: "auth",
-      views: 892,
-      likes: 156,
-      lastUpdated: new Date("2024-01-12"),
-      author: "Алексей Петров"
-    },
-    {
-      id: "3",
-      title: "Интеграция с Telegram Bot API",
-      content: "Полное руководство по подключению и настройке Telegram бота...",
-      categoryId: "technical",
-      views: 2341,
-      likes: 234,
-      lastUpdated: new Date("2024-01-08"),
-      author: "Дмитрий Козлов"
-    },
-    {
-      id: "4",
-      title: "Тарифы и способы оплаты",
-      content: "Обзор доступных тарифных планов и методов оплаты...",
-      categoryId: "billing",
-      views: 756,
-      likes: 67,
-      lastUpdated: new Date("2024-01-14"),
-      author: "Елена Смирнова"
+  // Загрузка статей из localStorage при монтировании
+  useEffect(() => {
+    const savedArticles = localStorage.getItem('knowledgeBaseArticles');
+    if (savedArticles) {
+      const parsed = JSON.parse(savedArticles).map((article: any) => ({
+        ...article,
+        lastUpdated: new Date(article.lastUpdated)
+      }));
+      setArticles(parsed);
+    } else {
+      // Инициализация демо-данными
+      const initialArticles: Article[] = [
+        {
+          id: "1",
+          title: "Как сбросить пароль в системе",
+          content: "Подробная инструкция по восстановлению доступа к аккаунту...",
+          categoryId: "auth",
+          views: 1247,
+          likes: 89,
+          lastUpdated: new Date("2024-01-10"),
+          author: "Мария Иванова",
+          tags: ["пароль", "безопасность", "авторизация"],
+          isPublic: true,
+          allowComments: true,
+          metaDescription: "Пошаговая инструкция по восстановлению пароля",
+          slug: "kak-sbrosit-parol-v-sisteme",
+          status: 'published'
+        },
+        {
+          id: "2", 
+          title: "Настройка двухфакторной аутентификации",
+          content: "Пошаговое руководство по настройке 2FA для повышения безопасности...",
+          categoryId: "auth",
+          views: 892,
+          likes: 156,
+          lastUpdated: new Date("2024-01-12"),
+          author: "Алексей Петров",
+          tags: ["2fa", "безопасность", "настройка"],
+          isPublic: true,
+          allowComments: true,
+          metaDescription: "Руководство по настройке двухфакторной аутентификации",
+          slug: "nastroyka-dvukhfaktornoy-autentifikatsii",
+          status: 'published'
+        },
+        {
+          id: "3",
+          title: "Интеграция с Telegram Bot API",
+          content: "Полное руководство по подключению и настройке Telegram бота...",
+          categoryId: "technical",
+          views: 2341,
+          likes: 234,
+          lastUpdated: new Date("2024-01-08"),
+          author: "Дмитрий Козлов",
+          tags: ["telegram", "api", "интеграция", "бот"],
+          isPublic: true,
+          allowComments: true,
+          metaDescription: "Подключение и настройка Telegram бота",
+          slug: "integratsiya-s-telegram-bot-api",
+          status: 'published'
+        },
+        {
+          id: "4",
+          title: "Тарифы и способы оплаты",
+          content: "Обзор доступных тарифных планов и методов оплаты...",
+          categoryId: "billing",
+          views: 756,
+          likes: 67,
+          lastUpdated: new Date("2024-01-14"),
+          author: "Елена Смирнова",
+          tags: ["тарифы", "оплата", "биллинг"],
+          isPublic: true,
+          allowComments: true,
+          metaDescription: "Информация о тарифных планах и методах оплаты",
+          slug: "tarify-i-sposoby-oplaty",
+          status: 'published'
+        }
+      ];
+      setArticles(initialArticles);
+      localStorage.setItem('knowledgeBaseArticles', JSON.stringify(initialArticles));
     }
-  ];
+  }, []);
 
-  const recentArticles: Article[] = [
-    {
-      id: "5",
-      title: "Новые возможности в версии 2.4",
-      content: "Обзор нововведений и улучшений в последнем обновлении...",
-      categoryId: "features",
-      views: 234,
-      likes: 45,
-      lastUpdated: new Date("2024-01-15"),
-      author: "Иван Тестов"
-    },
-    {
-      id: "6",
-      title: "Настройка уведомлений в мессенджерах",
-      content: "Как настроить получение уведомлений через различные каналы...",
-      categoryId: "features",
-      views: 123,
-      likes: 23,
-      lastUpdated: new Date("2024-01-14"),
-      author: "Анна Новикова"
-    }
-  ];
+  const popularArticles = articles.filter(a => a.status === 'published').sort((a, b) => b.views - a.views);
+
+  const recentArticles = articles.filter(a => a.status === 'published').sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
 
   const handleCreateArticle = () => {
-    toast({
-      title: "Создание статьи 📝",
-      description: "Открывается редактор статей (демо функция)",
-    });
+    setEditingArticle(null);
+    setIsEditorOpen(true);
+  };
+
+  const handleEditArticle = (article: Article) => {
+    setEditingArticle(article);
+    setIsEditorOpen(true);
+  };
+
+  const handleSaveArticle = (articleData: Article) => {
+    const updatedArticles = editingArticle
+      ? articles.map(a => a.id === editingArticle.id ? articleData : a)
+      : [...articles, articleData];
+    
+    setArticles(updatedArticles);
+    localStorage.setItem('knowledgeBaseArticles', JSON.stringify(updatedArticles));
+    
+    // Обновляем отфильтрованные статьи если нужно
+    if (selectedCategory || searchQuery) {
+      const filtered = updatedArticles.filter(article => {
+        const matchesCategory = !selectedCategory || article.categoryId === selectedCategory;
+        const matchesSearch = !searchQuery || 
+          article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          article.content.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch && article.status === 'published';
+      });
+      setFilteredArticles(filtered);
+    }
   };
 
   const handleViewArticle = (article: Article) => {
@@ -167,8 +223,8 @@ const Knowledge = () => {
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    const categoryArticles = [...popularArticles, ...recentArticles].filter(
-      article => article.categoryId === categoryId
+    const categoryArticles = articles.filter(
+      article => article.categoryId === categoryId && article.status === 'published'
     );
     setFilteredArticles(categoryArticles);
     toast({
@@ -180,16 +236,49 @@ const Knowledge = () => {
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
     
-    const searchResults = [...popularArticles, ...recentArticles].filter(
+    const searchResults = articles.filter(
       article =>
-        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchQuery.toLowerCase())
+        article.status === 'published' && (
+          article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          article.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          article.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
     );
     setFilteredArticles(searchResults);
     setSelectedCategory(null);
     toast({
       title: "Поиск",
       description: `Найдено ${searchResults.length} статей по запросу "${searchQuery}"`,
+    });
+  };
+
+  const exportArticles = () => {
+    const data = articles.map(article => ({
+      title: article.title,
+      category: categories.find(c => c.id === article.categoryId)?.name,
+      views: article.views,
+      likes: article.likes,
+      author: article.author,
+      lastUpdated: article.lastUpdated.toLocaleDateString('ru-RU'),
+      status: article.status,
+      tags: article.tags.join(', ')
+    }));
+    
+    const csvContent = [
+      Object.keys(data[0]).join(','),
+      ...data.map(row => Object.values(row).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'knowledge-base-export.csv';
+    a.click();
+    
+    toast({
+      title: "Экспорт завершен",
+      description: "Статьи экспортированы в CSV файл",
     });
   };
 
@@ -210,9 +299,13 @@ const Knowledge = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportArticles}>
+            <Download className="h-4 w-4 mr-2" />
+            Экспорт
+          </Button>
           <Button variant="outline" size="sm">
-            <Search className="h-4 w-4 mr-2" />
-            Поиск
+            <Filter className="h-4 w-4 mr-2" />
+            Фильтры
           </Button>
           <Button className="btn-gradient" onClick={handleCreateArticle}>
             <Plus className="h-4 w-4 mr-2" />
@@ -272,7 +365,7 @@ const Knowledge = () => {
                 <FileText className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <div className="text-lg font-bold">77</div>
+                <div className="text-lg font-bold">{articles.length}</div>
                 <div className="text-sm text-muted-foreground">Статей</div>
               </div>
             </div>
@@ -300,7 +393,7 @@ const Knowledge = () => {
                 <Eye className="h-5 w-5 text-warning" />
               </div>
               <div>
-                <div className="text-lg font-bold">12.4k</div>
+                <div className="text-lg font-bold">{articles.reduce((sum, a) => sum + a.views, 0).toLocaleString()}</div>
                 <div className="text-sm text-muted-foreground">Просмотров</div>
               </div>
             </div>
@@ -314,7 +407,7 @@ const Knowledge = () => {
                 <ThumbsUp className="h-5 w-5 text-destructive" />
               </div>
               <div>
-                <div className="text-lg font-bold">1.8k</div>
+                <div className="text-lg font-bold">{articles.reduce((sum, a) => sum + a.likes, 0).toLocaleString()}</div>
                 <div className="text-sm text-muted-foreground">Лайков</div>
               </div>
             </div>
@@ -375,9 +468,14 @@ const Knowledge = () => {
               <div key={article.id} className="p-4 rounded-lg bg-accent/30 border border-border/50 hover:bg-accent/50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-medium">{article.title}</h4>
-                  <Button variant="ghost" size="icon" onClick={() => handleViewArticle(article)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditArticle(article)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleViewArticle(article)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                   {article.content}
@@ -428,9 +526,14 @@ const Knowledge = () => {
               <div key={article.id} className="p-4 rounded-lg bg-accent/30 border border-border/50 hover:bg-accent/50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-medium">{article.title}</h4>
-                  <Button variant="ghost" size="icon" onClick={() => handleViewArticle(article)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditArticle(article)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleViewArticle(article)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">
                   {article.content}
@@ -455,6 +558,14 @@ const Knowledge = () => {
           </div>
         </CardContent>
       </Card>
+
+      <ArticleEditorModal
+        open={isEditorOpen}
+        onOpenChange={setIsEditorOpen}
+        article={editingArticle}
+        categories={categories}
+        onSave={handleSaveArticle}
+      />
     </div>
   );
 };
