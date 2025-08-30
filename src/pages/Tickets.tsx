@@ -13,26 +13,46 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { 
-  Search, 
-  Filter, 
-  Plus, 
-  ArrowUpDown,
-  Eye,
-  MessageSquare,
-  Clock,
-  User,
-  Building2,
-  Flag,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  MoreHorizontal, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  MessageSquare, 
+  MessageCircle,
   Paperclip,
-  Trash2,
-  Archive,
-  UserPlus,
-  Settings,
-  Tag,
+  Plus,
+  User,
   Download,
-  MessageCircle
+  Settings,
+  Filter,
+  Archive,
+  Flag,
+  Calendar,
+  Clock,
+  UserPlus,
+  Tag
 } from "lucide-react";
-import { mockTickets, mockClients, mockEmployees, Ticket } from "@/data/mockData";
+
+// MOCK: Импорт моковых данных - заменить на API сервисы
+// TODO: Удалить импорты mockData после полной интеграции с бэкендом
+import { mockTickets, mockClients, mockEmployees, Ticket, Client, Employee } from "@/data/mockData";
+
+// API SERVICES: Централизованные сервисы для работы с данными
+// TODO: Все вызовы этих сервисов заменятся на реальные API запросы при подключении бэкенда
+import { ticketsService } from "@/services/tickets";
+import { clientsService } from "@/services/clients";
+import { employeesService } from "@/services/employees";
+import { storageService } from "@/services/storage";
+
+// UI COMPONENTS: Импорт компонентов интерфейса
 import CreateTicketModal from "@/components/modals/CreateTicketModal";
 import TicketDetailModal from "@/components/modals/TicketDetailModal";
 import FullPageTicketModal from "@/components/modals/FullPageTicketModal";
@@ -45,6 +65,8 @@ import ColumnSettings, { ColumnConfig } from "@/components/ColumnSettings";
 import ResizableTableHeader from "@/components/ResizableTableHeader";
 
 const Tickets = () => {
+  // STATE MANAGEMENT: Состояние модальных окон и выбранных элементов
+  // TODO: При интеграции с WebSocket добавить real-time обновления состояния
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [ticketDetailOpen, setTicketDetailOpen] = useState(false);
   const [fullPageOpen, setFullPageOpen] = useState(false);
@@ -52,12 +74,27 @@ const Tickets = () => {
   const [tagsModalOpen, setTagsModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [conversationModalOpen, setConversationModalOpen] = useState(false);
+  
+  // FILTERS & SEARCH: Состояние фильтров и поиска
+  // TODO: При интеграции с бэкендом добавить сохранение фильтров на сервере
   const [filter, setFilter] = useState<TicketFilter>({});
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
+  
+  // SORTING: Состояние сортировки таблицы
+  // TODO: Сортировка будет выполняться на бэкенде через API параметры
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
-  // Настройки столбцов
+  // DATA LOADING: Состояние загрузки данных
+  // TODO: Эти состояния будут управляться API сервисами
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [clients, setClients] = useState<Client[]>(mockClients); // MOCK: Временно используем моки
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees); // MOCK: Временно используем моки
+  
+  // COLUMN CONFIGURATION: Настройки отображения колонок таблицы
+  // TODO: Настройки колонок будут сохраняться в профиле пользователя на бэкенде
   const [columns, setColumns] = useState<ColumnConfig[]>([
     { id: 'select', label: 'Выбор', visible: true, resizable: false, sortable: false },
     { id: 'id', label: 'ID', visible: true, resizable: true, sortable: true },
@@ -68,14 +105,15 @@ const Tickets = () => {
     { id: 'source', label: 'Источник', visible: true, resizable: true, sortable: false },
     { id: 'created', label: 'Создан', visible: true, resizable: true, sortable: true },
     { id: 'lastReply', label: 'Последний ответ', visible: true, resizable: true, sortable: true },
-    { id: 'lastReplyBy', label: 'Кем дан ответ', visible: true, resizable: true, sortable: true },
+    { id: 'lastReplyBy', label: 'Кем дан ответ', visible: true, resizable: true, sortable: false },
     { id: 'sla', label: 'SLA', visible: true, resizable: true, sortable: false },
     { id: 'assigned', label: 'Назначен', visible: true, resizable: true, sortable: false },
     { id: 'actions', label: 'Действия', visible: true, resizable: false, sortable: false }
   ]);
-  
-  // Ширины столбцов
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({
+
+  // COLUMN WIDTHS: Ширина колонок (сохраняется в localStorage)
+  // TODO: Синхронизировать с настройками пользователя на бэкенде
+  const [columnWidths, setColumnWidths] = useState({
     select: 50,
     id: 120,
     subject: 300,
@@ -90,43 +128,89 @@ const Tickets = () => {
     assigned: 150,
     actions: 100
   });
-  
-  // Рефы и обработчики для синхронизации единственного рабочего горизонтального скролла
+
+  // SCROLL SYNCHRONIZATION: Синхронизация горизонтального скролла
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const fixedScrollRef = useRef<HTMLDivElement>(null);
-  const isSyncingScroll = useRef(false);
-
+  
   const handleTableScroll = () => {
-    if (isSyncingScroll.current) return;
-    const table = tableScrollRef.current;
-    const fixed = fixedScrollRef.current;
-    if (!table || !fixed) return;
-    isSyncingScroll.current = true;
-    fixed.scrollLeft = table.scrollLeft;
-    requestAnimationFrame(() => {
-      isSyncingScroll.current = false;
-    });
+    const tableScroll = tableScrollRef.current;
+    const fixedScroll = fixedScrollRef.current;
+    if (!tableScroll || !fixedScroll) return;
+    fixedScroll.scrollLeft = tableScroll.scrollLeft;
   };
 
   const handleFixedScroll = () => {
-    if (isSyncingScroll.current) return;
-    const table = tableScrollRef.current;
-    const fixed = fixedScrollRef.current;
-    if (!table || !fixed) return;
-    isSyncingScroll.current = true;
-    table.scrollLeft = fixed.scrollLeft;
-    requestAnimationFrame(() => {
-      isSyncingScroll.current = false;
-    });
+    const tableScroll = tableScrollRef.current;
+    const fixedScroll = fixedScrollRef.current;
+    if (!tableScroll || !fixedScroll) return;
+    tableScroll.scrollLeft = fixedScroll.scrollLeft;
   };
+
+  // DATA LOADING: Загрузка данных тикетов через API сервис
+  // TODO: Заменить на реальные API вызовы при интеграции с бэкендом
+  useEffect(() => {
+    const loadTickets = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // API CALL: Получение тикетов с фильтрами
+        // TODO: При интеграции с бэкендом этот вызов будет отправлен на GET /api/tickets
+        const response = await ticketsService.getTickets(filter, 1, 100);
+        
+        if (response.success && response.data) {
+          setTickets(response.data.items);
+        } else {
+          setError(response.error?.message || "Failed to load tickets");
+        }
+      } catch (err) {
+        setError("Network error occurred");
+        console.error("Error loading tickets:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTickets();
+  }, [filter]); // Перезагрузка при изменении фильтров
+
+  // CLIENTS & EMPLOYEES: Загрузка справочных данных
+  // TODO: Эти данные будут кэшироваться и загружаться через API сервисы
+  useEffect(() => {
+    const loadReferenceData = async () => {
+      try {
+        // API CALL: Загрузка клиентов
+        // TODO: GET /api/clients
+        const clientsResponse = await clientsService.getClients({ limit: 1000 });
+        if (clientsResponse.success && clientsResponse.data) {
+          setClients(clientsResponse.data.items);
+        }
+
+        // API CALL: Загрузка сотрудников  
+        // TODO: GET /api/employees
+        const employeesResponse = await employeesService.getEmployees({ limit: 1000 });
+        if (employeesResponse.success && employeesResponse.data) {
+          setEmployees(employeesResponse.data.items);
+        }
+      } catch (err) {
+        console.error("Error loading reference data:", err);
+      }
+    };
+
+    loadReferenceData();
+  }, []);
+
+  // UTILITY FUNCTIONS: Вспомогательные функции для работы с данными
+  // TODO: Эти функции можно вынести в отдельные утилиты или получать данные через API
   
   const getClientName = (clientId: string) => {
-    const client = mockClients.find(c => c.id === clientId);
+    const client = clients.find(c => c.id === clientId);
     return client?.name || "Неизвестен";
   };
 
   const getEmployeeName = (employeeId: string) => {
-    const employee = mockEmployees.find(e => e.id === employeeId);
+    const employee = employees.find(e => e.id === employeeId);
     return employee?.name || "Не назначен";
   };
 
@@ -202,72 +286,99 @@ const Tickets = () => {
     );
   };
 
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
+  // TABLE MANAGEMENT: Функции управления таблицей
+  
+  // COLUMN RESIZING: Изменение ширины колонок
+  // TODO: Синхронизировать изменения с настройками пользователя на бэкенде
   const updateColumnWidth = (columnId: string, width: number) => {
     setColumnWidths(prev => ({
       ...prev,
       [columnId]: width
     }));
+    
+    // STORAGE: Сохранение настроек в localStorage
+    // TODO: Заменить на API вызов для сохранения настроек пользователя
+    storageService.saveColumnSettings('tickets', { ...columnWidths, [columnId]: width });
   };
 
+  // VISIBLE COLUMNS: Отфильтрованные видимые колонки
   const visibleColumns = columns.filter(col => col.visible);
 
-  // Фильтрация и сортировка тикетов
+  // DATA FILTERING & SORTING: Фильтрация и сортировка тикетов
+  // TODO: При интеграции с бэкендом фильтрация и сортировка будут выполняться на сервере
   const filteredTickets = useMemo(() => {
-    let filtered = mockTickets.filter((ticket) => {
-      // Поиск по тексту
-      if (filter.search) {
-        const searchLower = filter.search.toLowerCase();
+    if (isLoading) return [];
+    
+    let filtered = [...tickets];
+
+    // SEARCH FILTER: Поиск по тексту
+    if (filter.search) {
+      const searchLower = filter.search.toLowerCase();
+      filtered = filtered.filter((ticket) => {
         const matchesSearch = 
           ticket.id.toLowerCase().includes(searchLower) ||
           ticket.subject.toLowerCase().includes(searchLower) ||
           ticket.content.toLowerCase().includes(searchLower) ||
           getClientName(ticket.clientId).toLowerCase().includes(searchLower);
-        if (!matchesSearch) return false;
-      }
+        return matchesSearch;
+      });
+    }
 
-      // Фильтр по статусу
-      if (filter.status?.length && !filter.status.includes(ticket.status)) {
-        return false;
-      }
+    // STATUS FILTER: Фильтр по статусам
+    if (filter.status?.length) {
+      filtered = filtered.filter((ticket) => filter.status!.includes(ticket.status));
+    }
 
-      // Фильтр по приоритету
-      if (filter.priority?.length && !filter.priority.includes(ticket.priority)) {
-        return false;
-      }
+    // PRIORITY FILTER: Фильтр по приоритетам
+    if (filter.priority?.length) {
+      filtered = filtered.filter((ticket) => filter.priority!.includes(ticket.priority));
+    }
 
-      // Фильтр по департаменту
-      if (filter.departments?.length && !ticket.departments.some(d => filter.departments!.includes(d))) {
-        return false;
-      }
+    // DEPARTMENT FILTER: Фильтр по отделам
+    if (filter.departments?.length) {
+      filtered = filtered.filter((ticket) => 
+        ticket.departments.some(dept => filter.departments!.includes(dept))
+      );
+    }
 
-      // Фильтр по назначенному
-      if (filter.assignedTo?.length && !ticket.assignedTo.some(a => filter.assignedTo!.includes(a))) {
-        return false;
-      }
+    // ASSIGNED FILTER: Фильтр по назначенным
+    if (filter.assignedTo?.length) {
+      filtered = filtered.filter((ticket) => {
+        // Специальная обработка для "current_user"
+        if (filter.assignedTo!.includes('current_user')) {
+          // TODO: Получать ID текущего пользователя из контекста авторизации
+          const currentUserId = storageService.getCurrentUser()?.id || '1';
+          return ticket.assignedTo.includes(currentUserId);
+        }
+        return ticket.assignedTo.some(id => filter.assignedTo!.includes(id));
+      });
+    }
 
-      // Фильтр по источнику
-      if (filter.source?.length && !filter.source.includes(ticket.source)) {
-        return false;
-      }
+    // SOURCE FILTER: Фильтр по источникам
+    if (filter.source?.length) {
+      filtered = filtered.filter((ticket) => filter.source!.includes(ticket.source));
+    }
 
-      // Фильтр по SLA статусу
-      if (filter.slaStatus?.length && !filter.slaStatus.includes(ticket.slaStatus)) {
-        return false;
-      }
+    // SLA FILTER: Фильтр по SLA статусам
+    if (filter.slaStatus?.length) {
+      filtered = filtered.filter((ticket) => filter.slaStatus!.includes(ticket.slaStatus));
+    }
 
-      return true;
-    });
+    // DATE RANGE FILTER: Фильтр по дате создания
+    if (filter.dateRange?.from) {
+      filtered = filtered.filter((ticket) => 
+        new Date(ticket.createdAt) >= filter.dateRange!.from!
+      );
+    }
 
-    // Сортировка
+    if (filter.dateRange?.to) {
+      filtered = filtered.filter((ticket) => 
+        new Date(ticket.createdAt) <= filter.dateRange!.to!
+      );
+    }
+
+    // SORTING: Сортировка результатов
+    // TODO: При интеграции с бэкендом сортировка будет выполняться через SQL ORDER BY
     if (sortField) {
       filtered.sort((a, b) => {
         let aValue: any;
@@ -291,34 +402,41 @@ const Tickets = () => {
             bValue = b.status;
             break;
           case 'created':
-            aValue = a.createdAt.getTime();
-            bValue = b.createdAt.getTime();
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
             break;
           case 'lastReply':
-            aValue = a.lastReply.getTime();
-            bValue = b.lastReply.getTime();
-            break;
-          case 'lastReplyBy':
-            aValue = a.lastReplyByName || '';
-            bValue = b.lastReplyByName || '';
+            aValue = new Date(a.lastReply);
+            bValue = new Date(b.lastReply);
             break;
           default:
             return 0;
         }
 
-        if (aValue < bValue) {
-          return sortDirection === 'asc' ? -1 : 1;
+        if (sortDirection === 'desc') {
+          return bValue > aValue ? 1 : -1;
         }
-        if (aValue > bValue) {
-          return sortDirection === 'asc' ? 1 : -1;
-        }
-        return 0;
+        return aValue > bValue ? 1 : -1;
       });
     }
 
     return filtered;
-  }, [filter, sortField, sortDirection]);
+  }, [tickets, filter, sortField, sortDirection, clients, employees, isLoading]);
 
+  // EVENT HANDLERS: Обработчики событий пользовательского интерфейса
+  
+  // SORTING: Обработчик сортировки колонок
+  // TODO: При интеграции с бэкендом параметры сортировки будут передаваться в API запрос
+  const handleSort = (fieldId: string) => {
+    if (sortField === fieldId) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(fieldId);
+      setSortDirection('asc');
+    }
+  };
+
+  // SELECTION: Обработчики выбора тикетов
   const handleSelectTicket = (ticketId: string, checked: boolean) => {
     if (checked) {
       setSelectedTickets([...selectedTickets, ticketId]);
@@ -329,26 +447,111 @@ const Tickets = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedTickets(filteredTickets.map(t => t.id));
+      setSelectedTickets(filteredTickets.map(ticket => ticket.id));
     } else {
       setSelectedTickets([]);
     }
   };
 
-  const getSelectedCount = () => selectedTickets.length;
+  // BULK ACTIONS: Массовые действия с выбранными тикетами
+  // TODO: Реализовать API endpoints для массовых операций
+  const handleBulkAction = async (action: string) => {
+    if (selectedTickets.length === 0) return;
+
+    try {
+      setIsLoading(true);
+      
+      switch (action) {
+        case 'archive':
+          // TODO: POST /api/tickets/bulk/archive
+          console.log('Archiving tickets:', selectedTickets);
+          break;
+        case 'delete':
+          // TODO: DELETE /api/tickets/bulk
+          console.log('Deleting tickets:', selectedTickets);
+          break;
+        case 'assign':
+          // TODO: POST /api/tickets/bulk/assign
+          console.log('Assigning tickets:', selectedTickets);
+          break;
+        case 'priority':
+          // TODO: POST /api/tickets/bulk/priority
+          console.log('Changing priority:', selectedTickets);
+          break;
+      }
+      
+      // После успешного выполнения - перезагрузить данные
+      // TODO: Вместо полной перезагрузки использовать optimistic updates
+      
+    } catch (error) {
+      console.error('Bulk action error:', error);
+      setError("Failed to perform bulk action");
+    } finally {
+      setIsLoading(false);
+      setSelectedTickets([]);
+    }
+  };
 
   return (
     <div className="p-6 h-full flex flex-col">
-      {/* Заголовок */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold mb-2">Тикеты</h1>
-          <p className="text-muted-foreground">
-            Управление обращениями клиентов • Демо данные ({filteredTickets.length} из {mockTickets.length})
+      {/* HEADER SECTION: Заголовок страницы с действиями */}
+      {/* TODO: Добавить breadcrumbs навигацию при расширении приложения */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Тикеты
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Управление обращениями клиентов
+            {/* LOADING STATE: Индикатор загрузки */}
+            {isLoading && <span className="ml-2">⏳ Загрузка...</span>}
+            {/* ERROR STATE: Отображение ошибок */}
+            {error && <span className="ml-2 text-destructive">❌ {error}</span>}
           </p>
         </div>
         
+        {/* BULK ACTIONS: Массовые действия для выбранных тикетов */}
+        {/* TODO: Расширить список массовых действий при необходимости */}
         <div className="flex gap-2">
+          {selectedTickets.length > 0 && (
+            <div className="flex gap-2 mr-4 p-2 bg-accent/50 rounded-lg">
+              <span className="text-sm text-muted-foreground">
+                Выбрано: {selectedTickets.length}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleBulkAction('archive')}
+                disabled={isLoading}
+              >
+                <Archive className="h-4 w-4 mr-2" />
+                Архивировать
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleBulkAction('delete')}
+                disabled={isLoading}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Удалить
+              </Button>
+            </div>
+          )}
+          
+          {/* EXPORT: Экспорт данных */}
+          {/* TODO: Реализовать различные форматы экспорта через API */}
+          <Button 
+            variant="outline"
+            onClick={() => setExportModalOpen(true)}
+            disabled={isLoading}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Экспорт
+          </Button>
+          
+          {/* CUSTOM FIELDS: Кастомные поля */}
+          {/* TODO: Интегрировать с системой пользовательских полей */}
           <Button
             variant="outline"
             onClick={() => setCustomFieldsOpen(true)}
@@ -357,6 +560,8 @@ const Tickets = () => {
             <Settings className="h-4 w-4 mr-2" />
             Кастомные поля
           </Button>
+          
+          {/* TAGS: Управление тегами */}
           <Button
             variant="outline"
             onClick={() => setTagsModalOpen(true)}
@@ -365,13 +570,8 @@ const Tickets = () => {
             <Tag className="h-4 w-4 mr-2" />
             Теги
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setExportModalOpen(true)}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Экспорт
-          </Button>
+          
+          {/* CONVERSATION: Инициация разговора с клиентом */}
           <Button
             variant="outline"
             onClick={() => setConversationModalOpen(true)}
@@ -380,52 +580,26 @@ const Tickets = () => {
             <MessageCircle className="h-4 w-4 mr-2" />
             Написать клиенту
           </Button>
+          
+          {/* COLUMN SETTINGS: Настройки колонок */}
           <ColumnSettings 
             columns={columns}
             onColumnsChange={setColumns}
           />
+          
+          {/* CREATE TICKET: Создание нового тикета */}
           <CreateTicketModal />
         </div>
       </div>
 
-      {/* Фильтры */}
+      {/* FILTERS SECTION: Фильтры для поиска и отбора тикетов */}
+      {/* TODO: Добавить сохраненные фильтры пользователя */}
       <TicketFilters 
         onFilterChange={setFilter}
         currentFilter={filter}
       />
 
-      {/* Панель массовых действий */}
-      {selectedTickets.length > 0 && (
-        <Card className="mb-4 bg-accent/50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                Выбрано тикетов: {getSelectedCount()}
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Назначить
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Archive className="h-4 w-4 mr-2" />
-                  Архивировать
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Экспорт
-                </Button>
-                <Button variant="outline" size="sm" className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Удалить
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Таблица тикетов */}
+      {/* TICKETS TABLE: Основная таблица с тикетами */}
       <Card className="flex-1 bg-gradient-to-br from-card to-card/50">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -438,10 +612,11 @@ const Tickets = () => {
         </CardHeader>
         <CardContent className="p-0 relative">
           <div className="relative h-[calc(100vh-400px)]">
-            {/* Основной контент с ограниченной высотой для горизонтального скролла */}
+            {/* TABLE CONTENT: Контент таблицы с вертикальной прокруткой */}
             <div className="h-[calc(100%-20px)] overflow-y-auto overflow-x-hidden">
               <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto hide-scrollbar hide-inner-table-scroll">
                 <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
+                  {/* TABLE HEADER: Заголовки колонок с возможностью сортировки и изменения размера */}
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                     <TableRow>
                       {visibleColumns.map((column) => {
@@ -475,10 +650,13 @@ const Tickets = () => {
                       })}
                     </TableRow>
                   </TableHeader>
+                  
+                  {/* TABLE BODY: Строки с данными тикетов */}
                   <TableBody>
                     {filteredTickets.map((ticket) => (
                       <TableRow key={ticket.id} className="ticket-table-row">
                         {visibleColumns.map((column) => {
+                          // SELECTION COLUMN: Чекбокс для выбора
                           if (column.id === 'select') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -490,6 +668,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // ID COLUMN: ID тикета с возможностью открытия
                           if (column.id === 'id') {
                             return (
                               <TableCell key={column.id} className="font-mono text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
@@ -506,6 +685,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // SUBJECT COLUMN: Тема тикета с превью контента и тегами
                           if (column.id === 'subject') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -533,6 +713,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // CLIENT COLUMN: Информация о клиенте
                           if (column.id === 'client') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -544,6 +725,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // STATUS COLUMN: Статус тикета
                           if (column.id === 'status') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -552,6 +734,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // PRIORITY COLUMN: Приоритет тикета
                           if (column.id === 'priority') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -560,6 +743,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // SOURCE COLUMN: Источник тикета
                           if (column.id === 'source') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -571,6 +755,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // CREATED COLUMN: Дата создания
                           if (column.id === 'created') {
                             return (
                               <TableCell key={column.id} className="text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
@@ -579,6 +764,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // LAST REPLY COLUMN: Последний ответ
                           if (column.id === 'lastReply') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -592,6 +778,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // LAST REPLY BY COLUMN: Кем дан последний ответ
                           if (column.id === 'lastReplyBy') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -603,6 +790,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // SLA COLUMN: SLA статус
                           if (column.id === 'sla') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -611,6 +799,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // ASSIGNED COLUMN: Назначенные сотрудники
                           if (column.id === 'assigned') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -630,6 +819,7 @@ const Tickets = () => {
                             );
                           }
                           
+                          // ACTIONS COLUMN: Действия с тикетом
                           if (column.id === 'actions') {
                             return (
                               <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
@@ -657,7 +847,8 @@ const Tickets = () => {
               </div>
             </div>
             
-            {/* Фиксированная горизонтальная полоса прокрутки всегда внизу */}
+            {/* FIXED HORIZONTAL SCROLLBAR: Фиксированная горизонтальная полоса прокрутки */}
+            {/* TODO: Стилизовать scrollbar в соответствии с дизайн-системой */}
             <div 
               ref={fixedScrollRef}
               onScroll={handleFixedScroll}
@@ -669,41 +860,49 @@ const Tickets = () => {
         </CardContent>
       </Card>
 
-      {/* Модальные окна */}
+      {/* MODALS SECTION: Модальные окна для различных действий */}
+      {/* TODO: Добавить lazy loading для модальных окон */}
+      
+      {/* TICKET DETAIL: Просмотр деталей тикета */}
       <TicketDetailModal 
         open={ticketDetailOpen}
         onOpenChange={setTicketDetailOpen}
         ticketId={selectedTicket || undefined}
       />
 
+      {/* FULL PAGE TICKET: Полноэкранный просмотр тикета */}
       <FullPageTicketModal 
         open={fullPageOpen}
         onOpenChange={setFullPageOpen}
         ticketId={selectedTicket || undefined}
       />
 
+      {/* CUSTOM FIELDS: Управление кастомными полями */}
       <TicketCustomFieldsModal
         open={customFieldsOpen}
         onOpenChange={setCustomFieldsOpen}
         ticketId={selectedTickets.length === 1 ? selectedTickets[0] : undefined}
       />
 
+      {/* TAGS: Управление тегами тикета */}
       <TicketTagsModal
         open={tagsModalOpen}
         onOpenChange={setTagsModalOpen}
         ticketId={selectedTicket || undefined}
       />
 
+      {/* EXPORT: Экспорт данных тикетов */}
       <TicketExportModal
         open={exportModalOpen}
         onOpenChange={setExportModalOpen}
         selectedTickets={selectedTickets}
       />
 
+      {/* CONVERSATION: Инициация разговора с клиентом */}
       <InitiateConversationModal
         open={conversationModalOpen}
         onOpenChange={setConversationModalOpen}
-        clientId={selectedTicket ? mockTickets.find(t => t.id === selectedTicket)?.clientId : undefined}
+        clientId={selectedTicket ? filteredTickets.find(t => t.id === selectedTicket)?.clientId : undefined}
       />
     </div>
   );
