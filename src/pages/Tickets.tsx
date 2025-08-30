@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +90,38 @@ const Tickets = () => {
     assigned: 150,
     actions: 100
   });
+  
+  // Рефы для синхронизации прокрутки
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const fixedScrollRef = useRef<HTMLDivElement>(null);
+  
+  // Синхронизация горизонтальной прокрутки
+  useEffect(() => {
+    const tableScroll = tableScrollRef.current;
+    const fixedScroll = fixedScrollRef.current;
+    
+    if (!tableScroll || !fixedScroll) return;
+    
+    const syncTableToFixed = () => {
+      if (fixedScroll) {
+        fixedScroll.scrollLeft = tableScroll.scrollLeft;
+      }
+    };
+    
+    const syncFixedToTable = () => {
+      if (tableScroll) {
+        tableScroll.scrollLeft = fixedScroll.scrollLeft;
+      }
+    };
+    
+    tableScroll.addEventListener('scroll', syncTableToFixed);
+    fixedScroll.addEventListener('scroll', syncFixedToTable);
+    
+    return () => {
+      tableScroll.removeEventListener('scroll', syncTableToFixed);
+      fixedScroll.removeEventListener('scroll', syncFixedToTable);
+    };
+  }, []);
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -411,7 +443,7 @@ const Tickets = () => {
           <div className="relative h-[calc(100vh-400px)]">
             {/* Вертикальная прокрутка содержимого */}
             <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-20px)]">
-              <div className="overflow-x-auto">
+              <div ref={tableScrollRef} className="overflow-x-auto">
                 <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                     <TableRow>
@@ -629,7 +661,7 @@ const Tickets = () => {
             </div>
             
             {/* Фиксированная горизонтальная прокрутка */}
-            <div className="absolute bottom-0 left-0 right-0 h-5 overflow-x-auto overflow-y-hidden border-t bg-background/95">
+            <div ref={fixedScrollRef} className="absolute bottom-0 left-0 right-0 h-5 overflow-x-auto overflow-y-hidden border-t bg-background/95">
               <div style={{ width: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px`, height: "1px" }} />
             </div>
           </div>
