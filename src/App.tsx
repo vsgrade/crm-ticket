@@ -18,6 +18,8 @@ import Reports from "./pages/Reports";
 import Performance from "./pages/Performance";
 import APIDocumentation from "./pages/APIDocumentation";
 import AI from "./pages/AI";
+import AIPage from "./pages/AIPage";
+import Integrations from "./pages/integrations/Integrations";
 import Macros from "./pages/Macros";
 import Templates from "./pages/Templates";
 import Escalation from "./pages/Escalation";
@@ -56,7 +58,9 @@ const App = () => (
               <Route path="/reports" element={<Reports />} />
               <Route path="/performance" element={<Performance />} />
               <Route path="/integrations/api" element={<APIDocumentation />} />
-              <Route path="/ai" element={<AI />} />
+          <Route path="/ai" element={<AI />} />
+          <Route path="/ai-page" element={<AIPage />} />
+          <Route path="/integrations" element={<Integrations />} />
               <Route path="/macros" element={<Macros />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/escalation" element={<Escalation />} />
