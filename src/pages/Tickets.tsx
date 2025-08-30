@@ -443,7 +443,7 @@ const Tickets = () => {
           <div className="relative h-[calc(100vh-400px)]">
             {/* Основной контент с ограниченной высотой для горизонтального скролла */}
             <div className="h-[calc(100%-20px)] overflow-y-auto overflow-x-hidden">
-              <div ref={tableScrollRef} className="overflow-x-auto">
+              <div ref={tableScrollRef} className="overflow-x-auto hide-scrollbar">
                 <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                     <TableRow>
