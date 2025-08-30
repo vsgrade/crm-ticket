@@ -91,37 +91,34 @@ const Tickets = () => {
     actions: 100
   });
   
-  // Рефы для синхронизации прокрутки
+  // Рефы и обработчики для синхронизации единственного рабочего горизонтального скролла
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const fixedScrollRef = useRef<HTMLDivElement>(null);
-  
-  // Синхронизация горизонтальной прокрутки
-  useEffect(() => {
-    const tableScroll = tableScrollRef.current;
-    const fixedScroll = fixedScrollRef.current;
-    
-    if (!tableScroll || !fixedScroll) return;
-    
-    const syncTableToFixed = () => {
-      if (fixedScroll) {
-        fixedScroll.scrollLeft = tableScroll.scrollLeft;
-      }
-    };
-    
-    const syncFixedToTable = () => {
-      if (tableScroll) {
-        tableScroll.scrollLeft = fixedScroll.scrollLeft;
-      }
-    };
-    
-    tableScroll.addEventListener('scroll', syncTableToFixed);
-    fixedScroll.addEventListener('scroll', syncFixedToTable);
-    
-    return () => {
-      tableScroll.removeEventListener('scroll', syncTableToFixed);
-      fixedScroll.removeEventListener('scroll', syncFixedToTable);
-    };
-  }, []);
+  const isSyncingScroll = useRef(false);
+
+  const handleTableScroll = () => {
+    if (isSyncingScroll.current) return;
+    const table = tableScrollRef.current;
+    const fixed = fixedScrollRef.current;
+    if (!table || !fixed) return;
+    isSyncingScroll.current = true;
+    fixed.scrollLeft = table.scrollLeft;
+    requestAnimationFrame(() => {
+      isSyncingScroll.current = false;
+    });
+  };
+
+  const handleFixedScroll = () => {
+    if (isSyncingScroll.current) return;
+    const table = tableScrollRef.current;
+    const fixed = fixedScrollRef.current;
+    if (!table || !fixed) return;
+    isSyncingScroll.current = true;
+    table.scrollLeft = fixed.scrollLeft;
+    requestAnimationFrame(() => {
+      isSyncingScroll.current = false;
+    });
+  };
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -443,7 +440,7 @@ const Tickets = () => {
           <div className="relative h-[calc(100vh-400px)]">
             {/* Основной контент с ограниченной высотой для горизонтального скролла */}
             <div className="h-[calc(100%-20px)] overflow-y-auto overflow-x-hidden">
-              <div ref={tableScrollRef} className="overflow-x-auto hide-scrollbar">
+              <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto hide-scrollbar">
                 <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                     <TableRow>
