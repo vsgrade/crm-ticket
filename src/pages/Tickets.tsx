@@ -442,7 +442,7 @@ const Tickets = () => {
         <CardContent className="p-0 relative">
           <div className="relative h-[calc(100vh-400px)]">
             {/* Вертикальная прокрутка содержимого */}
-            <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-20px)]">
+            <div className="overflow-y-auto overflow-x-hidden h-[calc(100%_-_20px)]">
               <div ref={tableScrollRef} className="overflow-x-auto">
                 <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
@@ -661,7 +661,7 @@ const Tickets = () => {
             </div>
             
             {/* Фиксированная горизонтальная прокрутка */}
-            <div ref={fixedScrollRef} className="absolute bottom-0 left-0 right-0 h-5 overflow-x-auto overflow-y-hidden border-t bg-background/95">
+            <div ref={fixedScrollRef} className="absolute bottom-0 left-0 right-0 h-5 overflow-x-auto overflow-y-hidden border-t bg-background/95 z-10">
               <div style={{ width: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px`, height: "1px" }} />
             </div>
           </div>
