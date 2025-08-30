@@ -55,7 +55,7 @@ const ColumnSettings = ({ columns, onColumnsChange }: ColumnSettingsProps) => {
           Столбцы
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 bg-background border border-border shadow-lg z-50" align="end">
+      <PopoverContent className="w-80" align="end" side="bottom" sideOffset={8}>
         <div className="space-y-4">
           <h4 className="font-medium">Настройка столбцов</h4>
           
