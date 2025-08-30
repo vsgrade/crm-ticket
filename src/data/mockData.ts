@@ -14,6 +14,7 @@ export interface Ticket {
   updatedAt: Date;
   lastReply: Date;
   lastReplyBy: 'client' | 'agent';
+  lastReplyByName?: string;
   slaStatus: 'good' | 'warning' | 'critical';
   slaDeadline: Date;
   tags: string[];
@@ -384,6 +385,9 @@ const generateMockTickets = (): Ticket[] => {
       updatedAt: lastReplyDate,
       lastReply: lastReplyDate,
       lastReplyBy: Math.random() > 0.5 ? 'client' : 'agent',
+      lastReplyByName: Math.random() > 0.5 ? 
+        (Math.random() > 0.5 ? mockClients[0].name : mockClients[1].name) : 
+        (Math.random() > 0.5 ? mockEmployees[0].name : mockEmployees[1].name),
       slaStatus: slaStatuses[Math.floor(Math.random() * slaStatuses.length)],
       slaDeadline: new Date(createdDate.getTime() + 4 * 60 * 60 * 1000),
       tags: [`тег${Math.floor(Math.random() * 10) + 1}`, `категория${Math.floor(Math.random() * 5) + 1}`],

@@ -52,6 +52,8 @@ const Tickets = () => {
   const [conversationModalOpen, setConversationModalOpen] = useState(false);
   const [filter, setFilter] = useState<TicketFilter>({});
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -135,9 +137,18 @@ const Tickets = () => {
     );
   };
 
-  // Фильтрация тикетов
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  // Фильтрация и сортировка тикетов
   const filteredTickets = useMemo(() => {
-    return mockTickets.filter((ticket) => {
+    let filtered = mockTickets.filter((ticket) => {
       // Поиск по тексту
       if (filter.search) {
         const searchLower = filter.search.toLowerCase();
@@ -181,7 +192,58 @@ const Tickets = () => {
 
       return true;
     });
-  }, [filter]);
+
+    // Сортировка
+    if (sortField) {
+      filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortField) {
+          case 'id':
+            aValue = a.id;
+            bValue = b.id;
+            break;
+          case 'subject':
+            aValue = a.subject;
+            bValue = b.subject;
+            break;
+          case 'client':
+            aValue = getClientName(a.clientId);
+            bValue = getClientName(b.clientId);
+            break;
+          case 'status':
+            aValue = a.status;
+            bValue = b.status;
+            break;
+          case 'created':
+            aValue = a.createdAt.getTime();
+            bValue = b.createdAt.getTime();
+            break;
+          case 'lastReply':
+            aValue = a.lastReply.getTime();
+            bValue = b.lastReply.getTime();
+            break;
+          case 'lastReplyBy':
+            aValue = a.lastReplyByName || '';
+            bValue = b.lastReplyByName || '';
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) {
+          return sortDirection === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortDirection === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [filter, sortField, sortDirection]);
 
   const handleSelectTicket = (ticketId: string, checked: boolean) => {
     if (checked) {
@@ -308,25 +370,25 @@ const Tickets = () => {
                     />
                   </TableHead>
                   <TableHead className="w-[120px]">
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('id')}>
                       ID
                       <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
                   <TableHead className="min-w-[300px]">
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('subject')}>
                       Тема
                       <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('client')}>
                       Клиент
                       <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('status')}>
                       Статус
                       <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
@@ -334,12 +396,23 @@ const Tickets = () => {
                   <TableHead>Приоритет</TableHead>
                   <TableHead>Источник</TableHead>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('created')}>
                       Создан
                       <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
-                  <TableHead>Последний ответ</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('lastReply')}>
+                      Последний ответ
+                      <ArrowUpDown className="ml-2 h-3 w-3" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('lastReplyBy')}>
+                      Кем дан ответ
+                      <ArrowUpDown className="ml-2 h-3 w-3" />
+                    </Button>
+                  </TableHead>
                   <TableHead>SLA</TableHead>
                   <TableHead>Назначен</TableHead>
                   <TableHead className="w-[100px]">Действия</TableHead>
@@ -414,6 +487,12 @@ const Tickets = () => {
                         <div className="text-xs text-muted-foreground">
                           {ticket.lastReplyBy === 'client' ? 'клиент' : 'агент'}
                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {ticket.lastReplyByName || 
+                          (ticket.lastReplyBy === 'client' ? getClientName(ticket.clientId) : 'Агент')}
                       </div>
                     </TableCell>
                     <TableCell>
