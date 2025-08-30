@@ -193,6 +193,13 @@ const TicketFilters = ({ onFilterChange, currentFilter }: TicketFiltersProps) =>
         >
           Мои тикеты
         </Badge>
+        <Badge 
+          variant="outline" 
+          className="cursor-pointer hover:bg-accent"
+          onClick={() => onFilterChange({ status: ["closed"] })}
+        >
+          Закрытые тикеты
+        </Badge>
         <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
