@@ -642,7 +642,7 @@ const Tickets = () => {
       <TicketCustomFieldsModal
         open={customFieldsOpen}
         onOpenChange={setCustomFieldsOpen}
-        ticketId={selectedTicket || undefined}
+        ticketId={selectedTickets.length === 1 ? selectedTickets[0] : undefined}
       />
 
       <TicketTagsModal
