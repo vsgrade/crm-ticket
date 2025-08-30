@@ -229,4 +229,9 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  /* Disable inner Table wrapper scrolling inside tickets page */
+  .hide-inner-table-scroll > div.relative.w-full.overflow-auto {
+    overflow: visible !important;
+  }
 }

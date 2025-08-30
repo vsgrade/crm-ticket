@@ -440,7 +440,7 @@ const Tickets = () => {
           <div className="relative h-[calc(100vh-400px)]">
             {/* Основной контент с ограниченной высотой для горизонтального скролла */}
             <div className="h-[calc(100%-20px)] overflow-y-auto overflow-x-hidden">
-              <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto hide-scrollbar">
+              <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto hide-scrollbar hide-inner-table-scroll">
                 <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                     <TableRow>
@@ -660,6 +660,7 @@ const Tickets = () => {
             {/* Фиксированная горизонтальная полоса прокрутки всегда внизу */}
             <div 
               ref={fixedScrollRef}
+              onScroll={handleFixedScroll}
               className="absolute bottom-0 left-0 right-0 h-5 overflow-x-auto overflow-y-hidden border-t bg-background/95 z-10"
             >
               <div style={{ width: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px`, height: "1px" }} />

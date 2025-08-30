@@ -60,7 +60,7 @@ const ResizableTableHeader = ({
   return (
     <th
       ref={headerRef}
-      className={`relative select-none ${className}`}
+      className={`relative select-none sticky top-0 z-20 bg-background ${className}`}
       style={{ width: `${width}px`, minWidth: `${width}px` }}
     >
       <div className="flex items-center h-full">
