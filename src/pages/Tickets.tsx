@@ -407,221 +407,231 @@ const Tickets = () => {
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-auto h-[calc(100vh-400px)]">
-            <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
-              <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
-                <TableRow>
-                  {visibleColumns.map((column) => {
-                    if (column.id === 'select') {
-                      return (
-                        <ResizableTableHeader
-                          key={column.id}
-                          width={columnWidths[column.id]}
-                          onResize={(width) => updateColumnWidth(column.id, width)}
-                          resizable={column.resizable}
-                        >
-                          <Checkbox
-                            checked={filteredTickets.length > 0 && selectedTickets.length === filteredTickets.length}
-                            onCheckedChange={handleSelectAll}
-                          />
-                        </ResizableTableHeader>
-                      );
-                    }
-                    
-                    return (
-                      <ResizableTableHeader
-                        key={column.id}
-                        width={columnWidths[column.id]}
-                        onResize={(width) => updateColumnWidth(column.id, width)}
-                        onSort={column.sortable ? () => handleSort(column.id) : undefined}
-                        resizable={column.resizable}
-                      >
-                        {column.label}
-                      </ResizableTableHeader>
-                    );
-                  })}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTickets.map((ticket) => (
-                  <TableRow key={ticket.id} className="ticket-table-row">
-                    {visibleColumns.map((column) => {
-                      if (column.id === 'select') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <Checkbox
-                              checked={selectedTickets.includes(ticket.id)}
-                              onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
-                            />
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'id') {
-                        return (
-                          <TableCell key={column.id} className="font-mono text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
-                            <button 
-                              onClick={() => {
-                                setSelectedTicket(ticket.id);
-                                setFullPageOpen(true);
-                              }}
-                              className="hover:text-primary hover:underline cursor-pointer"
+        <CardContent className="p-0 relative">
+          <div className="relative h-[calc(100vh-400px)]">
+            {/* Вертикальная прокрутка содержимого */}
+            <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-20px)]">
+              <div className="overflow-x-auto">
+                <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
+                  <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
+                    <TableRow>
+                      {visibleColumns.map((column) => {
+                        if (column.id === 'select') {
+                          return (
+                            <ResizableTableHeader
+                              key={column.id}
+                              width={columnWidths[column.id]}
+                              onResize={(width) => updateColumnWidth(column.id, width)}
+                              resizable={column.resizable}
                             >
-                              {ticket.id}
-                            </button>
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'subject') {
+                              <Checkbox
+                                checked={filteredTickets.length > 0 && selectedTickets.length === filteredTickets.length}
+                                onCheckedChange={handleSelectAll}
+                              />
+                            </ResizableTableHeader>
+                          );
+                        }
+                        
                         return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <div className="flex items-start gap-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate">
-                                  {ticket.subject}
-                                </div>
-                                <div className="text-xs text-muted-foreground truncate">
-                                  {ticket.content.substring(0, 80)}...
-                                </div>
-                                <div className="flex gap-1 mt-1">
-                                  {ticket.tags.map((tag) => (
-                                    <Badge key={tag} variant="outline" className="text-xs h-5">
-                                      {tag}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                              {ticket.hasAttachments && (
-                                <Paperclip className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-1" />
-                              )}
-                            </div>
-                          </TableCell>
+                          <ResizableTableHeader
+                            key={column.id}
+                            width={columnWidths[column.id]}
+                            onResize={(width) => updateColumnWidth(column.id, width)}
+                            onSort={column.sortable ? () => handleSort(column.id) : undefined}
+                            resizable={column.resizable}
+                          >
+                            {column.label}
+                          </ResizableTableHeader>
                         );
-                      }
-                      
-                      if (column.id === 'client') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <div className="flex items-center gap-2">
-                              <User className="h-3 w-3 text-muted-foreground" />
-                              {getClientName(ticket.clientId)}
-                            </div>
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'status') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            {getStatusBadge(ticket.status)}
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'priority') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            {getPriorityBadge(ticket.priority)}
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'source') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <div className="flex items-center gap-1">
-                              <span className="text-lg">{getSourceIcon(ticket.source)}</span>
-                              <span className="text-xs capitalize">{ticket.source}</span>
-                            </div>
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'created') {
-                        return (
-                          <TableCell key={column.id} className="text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
-                            {getTimeAgo(ticket.createdAt)}
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'lastReply') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <div className="text-sm">
-                              <div>{getTimeAgo(ticket.lastReply)}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {ticket.lastReplyBy === 'client' ? 'клиент' : 'агент'}
-                              </div>
-                            </div>
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'lastReplyBy') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <div className="text-sm">
-                              {ticket.lastReplyByName || 
-                                (ticket.lastReplyBy === 'client' ? getClientName(ticket.clientId) : 'Агент')}
-                            </div>
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'sla') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            {getSlaStatus(ticket.slaStatus)}
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'assigned') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            {ticket.assignedTo.length > 0 ? (
-                              <div className="text-sm">
-                                {getEmployeeName(ticket.assignedTo[0])}
-                                {ticket.assignedTo.length > 1 && (
-                                  <div className="text-xs text-muted-foreground">
-                                    +{ticket.assignedTo.length - 1} еще
+                      })}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTickets.map((ticket) => (
+                      <TableRow key={ticket.id} className="ticket-table-row">
+                        {visibleColumns.map((column) => {
+                          if (column.id === 'select') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <Checkbox
+                                  checked={selectedTickets.includes(ticket.id)}
+                                  onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
+                                />
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'id') {
+                            return (
+                              <TableCell key={column.id} className="font-mono text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
+                                <button 
+                                  onClick={() => {
+                                    setSelectedTicket(ticket.id);
+                                    setFullPageOpen(true);
+                                  }}
+                                  className="hover:text-primary hover:underline cursor-pointer"
+                                >
+                                  {ticket.id}
+                                </button>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'subject') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <div className="flex items-start gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium truncate">
+                                      {ticket.subject}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground truncate">
+                                      {ticket.content.substring(0, 80)}...
+                                    </div>
+                                    <div className="flex gap-1 mt-1">
+                                      {ticket.tags.map((tag) => (
+                                        <Badge key={tag} variant="outline" className="text-xs h-5">
+                                          {tag}
+                                        </Badge>
+                                      ))}
+                                    </div>
                                   </div>
+                                  {ticket.hasAttachments && (
+                                    <Paperclip className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-1" />
+                                  )}
+                                </div>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'client') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <div className="flex items-center gap-2">
+                                  <User className="h-3 w-3 text-muted-foreground" />
+                                  {getClientName(ticket.clientId)}
+                                </div>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'status') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                {getStatusBadge(ticket.status)}
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'priority') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                {getPriorityBadge(ticket.priority)}
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'source') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-lg">{getSourceIcon(ticket.source)}</span>
+                                  <span className="text-xs capitalize">{ticket.source}</span>
+                                </div>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'created') {
+                            return (
+                              <TableCell key={column.id} className="text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
+                                {getTimeAgo(ticket.createdAt)}
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'lastReply') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <div className="text-sm">
+                                  <div>{getTimeAgo(ticket.lastReply)}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {ticket.lastReplyBy === 'client' ? 'клиент' : 'агент'}
+                                  </div>
+                                </div>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'lastReplyBy') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <div className="text-sm">
+                                  {ticket.lastReplyByName || 
+                                    (ticket.lastReplyBy === 'client' ? getClientName(ticket.clientId) : 'Агент')}
+                                </div>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'sla') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                {getSlaStatus(ticket.slaStatus)}
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'assigned') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                {ticket.assignedTo.length > 0 ? (
+                                  <div className="text-sm">
+                                    {getEmployeeName(ticket.assignedTo[0])}
+                                    {ticket.assignedTo.length > 1 && (
+                                      <div className="text-xs text-muted-foreground">
+                                        +{ticket.assignedTo.length - 1} еще
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">Не назначен</span>
                                 )}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground text-sm">Не назначен</span>
-                            )}
-                          </TableCell>
-                        );
-                      }
-                      
-                      if (column.id === 'actions') {
-                        return (
-                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setSelectedTicket(ticket.id);
-                                setTicketDetailOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        );
-                      }
-                      
-                      return null;
-                    })}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                              </TableCell>
+                            );
+                          }
+                          
+                          if (column.id === 'actions') {
+                            return (
+                              <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={() => {
+                                    setSelectedTicket(ticket.id);
+                                    setTicketDetailOpen(true);
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            );
+                          }
+                          
+                          return null;
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            
+            {/* Фиксированная горизонтальная прокрутка */}
+            <div className="absolute bottom-0 left-0 right-0 h-5 overflow-x-auto overflow-y-hidden border-t bg-background/95">
+              <div style={{ width: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px`, height: "1px" }} />
+            </div>
           </div>
         </CardContent>
       </Card>
