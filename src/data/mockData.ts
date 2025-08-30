@@ -14,7 +14,6 @@ export interface Ticket {
   updatedAt: Date;
   lastReply: Date;
   lastReplyBy: 'client' | 'agent';
-  lastReplyByName?: string; // Имя того, кто дал последний ответ
   slaStatus: 'good' | 'warning' | 'critical';
   slaDeadline: Date;
   tags: string[];
