@@ -83,6 +83,15 @@ const Tickets = () => {
     return employee?.name || "Не назначен";
   };
 
+  const getLastReplyByName = (ticket: Ticket) => {
+    if (ticket.lastReplyBy === 'client') {
+      return getClientName(ticket.clientId);
+    } else {
+      // Если есть указано имя в lastReplyByName, используем его, иначе берем первого назначенного
+      return ticket.lastReplyByName || (ticket.assignedTo.length > 0 ? getEmployeeName(ticket.assignedTo[0]) : "Агент");
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusMap = {
       'new': { label: 'Новый', class: 'status-new' },
@@ -233,6 +242,10 @@ const Tickets = () => {
             aValue = a.lastReply.getTime();
             bValue = b.lastReply.getTime();
             break;
+          case 'lastReplyBy':
+            aValue = getLastReplyByName(a);
+            bValue = getLastReplyByName(b);
+            break;
           default:
             return 0;
         }
@@ -382,7 +395,7 @@ const Tickets = () => {
         </CardHeader>
         <CardContent className="p-0">
           {/* Контролы пагинации */}
-          <div className="p-4 border-b flex items-center justify-between">
+          <div className="p-4 border-b flex items-center justify-between bg-background">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Показать:</span>
               <Select
@@ -392,10 +405,10 @@ const Tickets = () => {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-20">
+                <SelectTrigger className="w-20 bg-background">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border shadow-lg z-50">
                   <SelectItem value="5">5</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="20">20</SelectItem>
@@ -409,7 +422,8 @@ const Tickets = () => {
               Показано {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredAndSortedTickets.length)} из {filteredAndSortedTickets.length}
             </div>
           </div>
-          <div className="overflow-auto h-[calc(100vh-400px)]">
+          <div className="overflow-x-auto">
+            <div className="min-w-[1200px]">
             <Table>
               <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                 <TableRow>
@@ -457,7 +471,12 @@ const Tickets = () => {
                       <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
-                  <TableHead>Кем дан ответ</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('lastReplyBy')}>
+                      Кем дан ответ
+                      <ArrowUpDown className="ml-2 h-3 w-3" />
+                    </Button>
+                  </TableHead>
                   <TableHead>SLA</TableHead>
                   <TableHead>Назначен</TableHead>
                   <TableHead className="w-[100px]">Действия</TableHead>
@@ -533,17 +552,21 @@ const Tickets = () => {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {ticket.lastReplyBy === 'client' ? (
-                          <div className="flex items-center gap-1">
-                            <User className="h-3 w-3 text-muted-foreground" />
-                            <span>Клиент</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1">
-                            <User className="h-3 w-3 text-primary" />
-                            <span>Агент</span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {ticket.lastReplyBy === 'client' ? (
+                            <>
+                              <User className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-muted-foreground">Клиент:</span>
+                              <span>{getLastReplyByName(ticket)}</span>
+                            </>
+                          ) : (
+                            <>
+                              <User className="h-3 w-3 text-primary" />
+                              <span className="text-primary">Агент:</span>
+                              <span>{getLastReplyByName(ticket)}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -580,70 +603,77 @@ const Tickets = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </div>
           
           {/* Пагинация */}
           {totalPages > 1 && (
-            <div className="p-4 border-t">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage > 1) setCurrentPage(currentPage - 1);
-                      }}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
-                  
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-                    
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationLink
-                          href="#"
-                          isActive={currentPage === pageNum}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(pageNum);
-                          }}
-                        >
-                          {pageNum}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
-                  
-                  {totalPages > 5 && currentPage < totalPages - 2 && (
+            <div className="p-4 border-t bg-background">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Страница {currentPage} из {totalPages}
+                </div>
+                <Pagination>
+                  <PaginationContent>
                     <PaginationItem>
-                      <PaginationEllipsis />
+                      <PaginationPrevious 
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage > 1) setCurrentPage(currentPage - 1);
+                        }}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
                     </PaginationItem>
-                  )}
-                  
-                  <PaginationItem>
-                    <PaginationNext 
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                      }}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                    
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            href="#"
+                            isActive={currentPage === pageNum}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(pageNum);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    {totalPages > 5 && currentPage < totalPages - 2 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                        }}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
             </div>
           )}
         </CardContent>
