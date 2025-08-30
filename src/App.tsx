@@ -33,6 +33,9 @@ import Salary from "./pages/Salary";
 import Schedule from "./pages/Schedule";
 import ProfileSettings from "./pages/ProfileSettings";
 import SystemFields from "./pages/SystemFields";
+import Notifications from "./pages/Notifications";
+import Omnichannel from "./pages/Omnichannel";
+import Automation from "./pages/Automation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -74,6 +77,9 @@ const App = () => (
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/system-fields" element={<SystemFields />} />
               <Route path="/profile" element={<ProfileSettings />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/omnichannel" element={<Omnichannel />} />
+              <Route path="/automation" element={<Automation />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
