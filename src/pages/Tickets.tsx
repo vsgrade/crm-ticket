@@ -41,6 +41,8 @@ import TicketCustomFieldsModal from "@/components/modals/TicketCustomFieldsModal
 import TicketTagsModal from "@/components/modals/TicketTagsModal";
 import TicketExportModal from "@/components/modals/TicketExportModal";
 import InitiateConversationModal from "@/components/modals/InitiateConversationModal";
+import ColumnSettings, { ColumnConfig } from "@/components/ColumnSettings";
+import ResizableTableHeader from "@/components/ResizableTableHeader";
 
 const Tickets = () => {
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
@@ -54,6 +56,40 @@ const Tickets = () => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  
+  // Настройки столбцов
+  const [columns, setColumns] = useState<ColumnConfig[]>([
+    { id: 'select', label: 'Выбор', visible: true, resizable: false, sortable: false },
+    { id: 'id', label: 'ID', visible: true, resizable: true, sortable: true },
+    { id: 'subject', label: 'Тема', visible: true, resizable: true, sortable: true },
+    { id: 'client', label: 'Клиент', visible: true, resizable: true, sortable: true },
+    { id: 'status', label: 'Статус', visible: true, resizable: true, sortable: true },
+    { id: 'priority', label: 'Приоритет', visible: true, resizable: true, sortable: false },
+    { id: 'source', label: 'Источник', visible: true, resizable: true, sortable: false },
+    { id: 'created', label: 'Создан', visible: true, resizable: true, sortable: true },
+    { id: 'lastReply', label: 'Последний ответ', visible: true, resizable: true, sortable: true },
+    { id: 'lastReplyBy', label: 'Кем дан ответ', visible: true, resizable: true, sortable: true },
+    { id: 'sla', label: 'SLA', visible: true, resizable: true, sortable: false },
+    { id: 'assigned', label: 'Назначен', visible: true, resizable: true, sortable: false },
+    { id: 'actions', label: 'Действия', visible: true, resizable: false, sortable: false }
+  ]);
+  
+  // Ширины столбцов
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({
+    select: 50,
+    id: 120,
+    subject: 300,
+    client: 150,
+    status: 120,
+    priority: 120,
+    source: 100,
+    created: 120,
+    lastReply: 150,
+    lastReplyBy: 150,
+    sla: 120,
+    assigned: 150,
+    actions: 100
+  });
   
   const getClientName = (clientId: string) => {
     const client = mockClients.find(c => c.id === clientId);
@@ -145,6 +181,15 @@ const Tickets = () => {
       setSortDirection('asc');
     }
   };
+
+  const updateColumnWidth = (columnId: string, width: number) => {
+    setColumnWidths(prev => ({
+      ...prev,
+      [columnId]: width
+    }));
+  };
+
+  const visibleColumns = columns.filter(col => col.visible);
 
   // Фильтрация и сортировка тикетов
   const filteredTickets = useMemo(() => {
@@ -306,6 +351,10 @@ const Tickets = () => {
             <MessageCircle className="h-4 w-4 mr-2" />
             Написать клиенту
           </Button>
+          <ColumnSettings 
+            columns={columns}
+            onColumnsChange={setColumns}
+          />
           <CreateTicketModal />
         </div>
       </div>
@@ -360,171 +409,215 @@ const Tickets = () => {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-auto h-[calc(100vh-400px)]">
-            <Table>
+            <Table style={{ minWidth: `${Object.values(columnWidths).reduce((a, b) => a + b, 0)}px` }}>
               <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm">
                 <TableRow>
-                  <TableHead className="w-[50px]">
-                    <Checkbox
-                      checked={filteredTickets.length > 0 && selectedTickets.length === filteredTickets.length}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead className="w-[120px]">
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('id')}>
-                      ID
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead className="min-w-[300px]">
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('subject')}>
-                      Тема
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('client')}>
-                      Клиент
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('status')}>
-                      Статус
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>Приоритет</TableHead>
-                  <TableHead>Источник</TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('created')}>
-                      Создан
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('lastReply')}>
-                      Последний ответ
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort('lastReplyBy')}>
-                      Кем дан ответ
-                      <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>SLA</TableHead>
-                  <TableHead>Назначен</TableHead>
-                  <TableHead className="w-[100px]">Действия</TableHead>
+                  {visibleColumns.map((column) => {
+                    if (column.id === 'select') {
+                      return (
+                        <ResizableTableHeader
+                          key={column.id}
+                          width={columnWidths[column.id]}
+                          onResize={(width) => updateColumnWidth(column.id, width)}
+                          resizable={column.resizable}
+                        >
+                          <Checkbox
+                            checked={filteredTickets.length > 0 && selectedTickets.length === filteredTickets.length}
+                            onCheckedChange={handleSelectAll}
+                          />
+                        </ResizableTableHeader>
+                      );
+                    }
+                    
+                    return (
+                      <ResizableTableHeader
+                        key={column.id}
+                        width={columnWidths[column.id]}
+                        onResize={(width) => updateColumnWidth(column.id, width)}
+                        onSort={column.sortable ? () => handleSort(column.id) : undefined}
+                        resizable={column.resizable}
+                      >
+                        {column.label}
+                      </ResizableTableHeader>
+                    );
+                  })}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredTickets.map((ticket) => (
                   <TableRow key={ticket.id} className="ticket-table-row">
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedTickets.includes(ticket.id)}
-                        onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      <button 
-                        onClick={() => {
-                          setSelectedTicket(ticket.id);
-                          setFullPageOpen(true);
-                        }}
-                        className="hover:text-primary hover:underline cursor-pointer"
-                      >
-                        {ticket.id}
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">
-                            {ticket.subject}
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {ticket.content.substring(0, 80)}...
-                          </div>
-                          <div className="flex gap-1 mt-1">
-                            {ticket.tags.map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs h-5">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        {ticket.hasAttachments && (
-                          <Paperclip className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-1" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <User className="h-3 w-3 text-muted-foreground" />
-                        {getClientName(ticket.clientId)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(ticket.status)}
-                    </TableCell>
-                    <TableCell>
-                      {getPriorityBadge(ticket.priority)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <span className="text-lg">{getSourceIcon(ticket.source)}</span>
-                        <span className="text-xs capitalize">{ticket.source}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {getTimeAgo(ticket.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>{getTimeAgo(ticket.lastReply)}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {ticket.lastReplyBy === 'client' ? 'клиент' : 'агент'}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {ticket.lastReplyByName || 
-                          (ticket.lastReplyBy === 'client' ? getClientName(ticket.clientId) : 'Агент')}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getSlaStatus(ticket.slaStatus)}
-                    </TableCell>
-                    <TableCell>
-                      {ticket.assignedTo.length > 0 ? (
-                        <div className="text-sm">
-                          {getEmployeeName(ticket.assignedTo[0])}
-                          {ticket.assignedTo.length > 1 && (
-                            <div className="text-xs text-muted-foreground">
-                              +{ticket.assignedTo.length - 1} еще
+                    {visibleColumns.map((column) => {
+                      if (column.id === 'select') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <Checkbox
+                              checked={selectedTickets.includes(ticket.id)}
+                              onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
+                            />
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'id') {
+                        return (
+                          <TableCell key={column.id} className="font-mono text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
+                            <button 
+                              onClick={() => {
+                                setSelectedTicket(ticket.id);
+                                setFullPageOpen(true);
+                              }}
+                              className="hover:text-primary hover:underline cursor-pointer"
+                            >
+                              {ticket.id}
+                            </button>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'subject') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <div className="flex items-start gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate">
+                                  {ticket.subject}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {ticket.content.substring(0, 80)}...
+                                </div>
+                                <div className="flex gap-1 mt-1">
+                                  {ticket.tags.map((tag) => (
+                                    <Badge key={tag} variant="outline" className="text-xs h-5">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                              {ticket.hasAttachments && (
+                                <Paperclip className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-1" />
+                              )}
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">Не назначен</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setSelectedTicket(ticket.id);
-                          setTicketDetailOpen(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'client') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <div className="flex items-center gap-2">
+                              <User className="h-3 w-3 text-muted-foreground" />
+                              {getClientName(ticket.clientId)}
+                            </div>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'status') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            {getStatusBadge(ticket.status)}
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'priority') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            {getPriorityBadge(ticket.priority)}
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'source') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <div className="flex items-center gap-1">
+                              <span className="text-lg">{getSourceIcon(ticket.source)}</span>
+                              <span className="text-xs capitalize">{ticket.source}</span>
+                            </div>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'created') {
+                        return (
+                          <TableCell key={column.id} className="text-sm" style={{ width: `${columnWidths[column.id]}px` }}>
+                            {getTimeAgo(ticket.createdAt)}
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'lastReply') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <div className="text-sm">
+                              <div>{getTimeAgo(ticket.lastReply)}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {ticket.lastReplyBy === 'client' ? 'клиент' : 'агент'}
+                              </div>
+                            </div>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'lastReplyBy') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <div className="text-sm">
+                              {ticket.lastReplyByName || 
+                                (ticket.lastReplyBy === 'client' ? getClientName(ticket.clientId) : 'Агент')}
+                            </div>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'sla') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            {getSlaStatus(ticket.slaStatus)}
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'assigned') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            {ticket.assignedTo.length > 0 ? (
+                              <div className="text-sm">
+                                {getEmployeeName(ticket.assignedTo[0])}
+                                {ticket.assignedTo.length > 1 && (
+                                  <div className="text-xs text-muted-foreground">
+                                    +{ticket.assignedTo.length - 1} еще
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">Не назначен</span>
+                            )}
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (column.id === 'actions') {
+                        return (
+                          <TableCell key={column.id} style={{ width: `${columnWidths[column.id]}px` }}>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={() => {
+                                setSelectedTicket(ticket.id);
+                                setTicketDetailOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        );
+                      }
+                      
+                      return null;
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
