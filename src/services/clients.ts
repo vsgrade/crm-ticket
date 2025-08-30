@@ -13,6 +13,8 @@ import {
 import { Client } from '@/data/mockData';
 import { mockClients } from '@/data/mockData';
 
+const IS_PROD = (typeof window !== 'undefined') && !/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+
 class ClientsService {
   private cacheDuration = 5; // минуты
 
@@ -25,7 +27,7 @@ class ClientsService {
     }
   ): Promise<ApiResponse<PaginatedResponse<Client>>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached('/clients', params, this.cacheDuration);
       }
 
@@ -102,7 +104,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: GET /api/clients/{id}
   async getClient(id: string): Promise<ApiResponse<Client>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached(`/clients/${id}`, undefined, this.cacheDuration);
       }
 
@@ -144,7 +146,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: POST /api/clients
   async createClient(clientData: CreateClientRequest): Promise<ApiResponse<Client>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.post('/clients', clientData);
       }
 
@@ -196,7 +198,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: PUT /api/clients/{id}
   async updateClient(id: string, updates: UpdateClientRequest): Promise<ApiResponse<Client>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.put(`/clients/${id}`, updates);
       }
 
@@ -246,7 +248,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: DELETE /api/clients/{id}
   async deleteClient(id: string): Promise<ApiResponse<void>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.delete(`/clients/${id}`);
       }
 
@@ -292,7 +294,7 @@ class ClientsService {
     params?: QueryParams
   ): Promise<ApiResponse<PaginatedResponse<any>>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached(`/clients/${clientId}/tickets`, params, this.cacheDuration);
       }
 
@@ -341,7 +343,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: GET /api/clients/stats
   async getClientStats(): Promise<ApiResponse<any>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached('/clients/stats', undefined, 10);
       }
 
@@ -391,7 +393,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: POST /api/clients/import
   async importClients(file: File): Promise<ApiResponse<{ imported: number; errors: string[] }>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.uploadFile('/clients/import', file);
       }
 
@@ -423,7 +425,7 @@ class ClientsService {
   // TODO: Заменить на реальный API вызов: GET /api/clients/export
   async exportClients(format: 'csv' | 'excel' = 'csv'): Promise<ApiResponse<{ downloadUrl: string }>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.get(`/clients/export?format=${format}`);
       }
 

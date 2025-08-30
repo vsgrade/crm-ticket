@@ -13,6 +13,8 @@ import {
 import { Employee } from '@/data/mockData';
 import { mockEmployees } from '@/data/mockData';
 
+const IS_PROD = (typeof window !== 'undefined') && !/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+
 class EmployeesService {
   private cacheDuration = 10; // минуты
 
@@ -20,7 +22,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: GET /api/employees
   async getEmployees(params?: QueryParams): Promise<ApiResponse<PaginatedResponse<Employee>>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached('/employees', params, this.cacheDuration);
       }
 
@@ -90,7 +92,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: GET /api/employees/{id}
   async getEmployee(id: string): Promise<ApiResponse<Employee>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached(`/employees/${id}`, undefined, this.cacheDuration);
       }
 
@@ -132,7 +134,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: POST /api/employees
   async createEmployee(employeeData: CreateEmployeeRequest): Promise<ApiResponse<Employee>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.post('/employees', employeeData);
       }
 
@@ -183,7 +185,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: PUT /api/employees/{id}
   async updateEmployee(id: string, updates: UpdateEmployeeRequest): Promise<ApiResponse<Employee>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.put(`/employees/${id}`, updates);
       }
 
@@ -233,7 +235,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: DELETE /api/employees/{id}
   async deleteEmployee(id: string): Promise<ApiResponse<void>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.delete(`/employees/${id}`);
       }
 
@@ -276,7 +278,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: GET /api/employees/{id}/stats
   async getEmployeeStats(id: string, period?: string): Promise<ApiResponse<any>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached(`/employees/${id}/stats`, { period }, 5);
       }
 
@@ -330,7 +332,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: GET /api/employees/online
   async getOnlineEmployees(): Promise<ApiResponse<Employee[]>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached('/employees/online', undefined, 1);
       }
 
@@ -362,7 +364,7 @@ class EmployeesService {
   // TODO: Заменить на реальный API вызов: POST /api/employees/{id}/status
   async updateOnlineStatus(id: string, isOnline: boolean): Promise<ApiResponse<Employee>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.post(`/employees/${id}/status`, { isOnline });
       }
 

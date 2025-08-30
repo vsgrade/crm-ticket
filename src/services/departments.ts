@@ -13,6 +13,8 @@ import {
 import { Department } from '@/data/mockData';
 import { mockDepartments } from '@/data/mockData';
 
+const IS_PROD = (typeof window !== 'undefined') && !/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+
 class DepartmentsService {
   private cacheDuration = 15; // минуты
 
@@ -20,7 +22,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: GET /api/departments
   async getDepartments(params?: QueryParams): Promise<ApiResponse<PaginatedResponse<Department>>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached('/departments', params, this.cacheDuration);
       }
 
@@ -96,7 +98,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: GET /api/departments/{id}
   async getDepartment(id: string): Promise<ApiResponse<Department>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached(`/departments/${id}`, undefined, this.cacheDuration);
       }
 
@@ -138,7 +140,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: POST /api/departments
   async createDepartment(departmentData: CreateDepartmentRequest): Promise<ApiResponse<Department>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.post('/departments', departmentData);
       }
 
@@ -189,7 +191,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: PUT /api/departments/{id}
   async updateDepartment(id: string, updates: UpdateDepartmentRequest): Promise<ApiResponse<Department>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.put(`/departments/${id}`, updates);
       }
 
@@ -239,7 +241,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: DELETE /api/departments/{id}
   async deleteDepartment(id: string): Promise<ApiResponse<void>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.delete(`/departments/${id}`);
       }
 
@@ -282,7 +284,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: GET /api/departments/{id}/stats
   async getDepartmentStats(id: string, period?: string): Promise<ApiResponse<any>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached(`/departments/${id}/stats`, { period }, 5);
       }
 
@@ -342,7 +344,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: GET /api/departments/active
   async getActiveDepartments(): Promise<ApiResponse<Department[]>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached('/departments/active', undefined, this.cacheDuration);
       }
 
@@ -374,7 +376,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: POST /api/departments/{id}/employees
   async addEmployeeToDepartment(departmentId: string, employeeId: string): Promise<ApiResponse<Department>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.post(`/departments/${departmentId}/employees`, { employeeId });
       }
 
@@ -405,7 +407,7 @@ class DepartmentsService {
   // TODO: Заменить на реальный API вызов: DELETE /api/departments/{id}/employees/{employeeId}
   async removeEmployeeFromDepartment(departmentId: string, employeeId: string): Promise<ApiResponse<Department>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.delete(`/departments/${departmentId}/employees/${employeeId}`);
       }
 

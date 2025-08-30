@@ -6,8 +6,8 @@ import { ApiResponse, QueryParams } from '@/types/api.types';
 import { storageService } from './storage';
 
 class ApiService {
-  private baseUrl = process.env.REACT_APP_API_URL || 'https://api.yourcompany.com/v1';
-  private isProduction = process.env.NODE_ENV === 'production';
+  private baseUrl = 'https://api.yourcompany.com/v1';
+  private isProduction = (typeof window !== 'undefined') && !/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
 
   // MOCK: Эмуляция задержки сети
   private mockDelay(ms: number = 300): Promise<void> {

@@ -14,6 +14,8 @@ import {
 import { Ticket } from '@/data/mockData';
 import { mockTickets, mockClients, mockEmployees } from '@/data/mockData';
 
+const IS_PROD = (typeof window !== 'undefined') && !/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+
 class TicketsService {
   private cacheDuration = 2; // минуты
 
@@ -26,7 +28,7 @@ class TicketsService {
   ): Promise<ApiResponse<PaginatedResponse<Ticket>>> {
     try {
       // В продакшене это будет реальный API вызов
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         const params = {
           page,
           limit,
@@ -146,7 +148,7 @@ class TicketsService {
   // TODO: Заменить на реальный API вызов: GET /api/tickets/{id}
   async getTicket(id: string): Promise<ApiResponse<Ticket>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.getCached(`/tickets/${id}`, undefined, this.cacheDuration);
       }
 
@@ -187,7 +189,7 @@ class TicketsService {
   // TODO: Заменить на реальный API вызов: POST /api/tickets
   async createTicket(ticketData: CreateTicketRequest): Promise<ApiResponse<Ticket>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.post('/tickets', ticketData);
       }
 
@@ -254,7 +256,7 @@ class TicketsService {
   // TODO: Заменить на реальный API вызов: PUT /api/tickets/{id}
   async updateTicket(id: string, updates: UpdateTicketRequest): Promise<ApiResponse<Ticket>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.put(`/tickets/${id}`, updates);
       }
 
@@ -305,7 +307,7 @@ class TicketsService {
   // TODO: Заменить на реальный API вызов: DELETE /api/tickets/{id}
   async deleteTicket(id: string): Promise<ApiResponse<void>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.delete(`/tickets/${id}`);
       }
 
@@ -348,7 +350,7 @@ class TicketsService {
   // TODO: Заменить на реальный API вызов: POST /api/tickets/{id}/messages
   async addMessage(ticketId: string, messageData: CreateMessageRequest): Promise<ApiResponse<any>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+       if (IS_PROD) {
         return await apiService.post(`/tickets/${ticketId}/messages`, messageData);
       }
 
@@ -419,7 +421,7 @@ class TicketsService {
   // TODO: Заменить на реальный API вызов: GET /api/tickets/stats
   async getTicketStats(period?: string, departments?: string[]): Promise<ApiResponse<any>> {
     try {
-      if (process.env.NODE_ENV === 'production') {
+      if (IS_PROD) {
         return await apiService.getCached('/tickets/stats', { period, departments }, 5);
       }
 
