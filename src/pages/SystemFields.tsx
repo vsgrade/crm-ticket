@@ -1,11 +1,15 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   User,
-  Settings
+  Settings,
+  Shield,
+  UserCog
 } from 'lucide-react';
 import ContactFieldsManager from '@/components/ContactFieldsManager';
+import RoleManager from '@/components/RoleManager';
 
 const SystemFields = () => {
   return (
@@ -28,18 +32,48 @@ const SystemFields = () => {
       </div>
 
       <div className="flex-1 p-6 overflow-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+        <Tabs defaultValue="fields" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="fields" className="flex items-center gap-2">
+              <UserCog className="h-4 w-4" />
               Дополнительные поля
-            </CardTitle>
-            <CardDescription>Настройка дополнительных полей для клиентов и сотрудников</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ContactFieldsManager />
-          </CardContent>
-        </Card>
+            </TabsTrigger>
+            <TabsTrigger value="roles" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Роли и права
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="fields" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Дополнительные поля
+                </CardTitle>
+                <CardDescription>Настройка дополнительных полей для клиентов и сотрудников</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ContactFieldsManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="roles" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Управление ролями
+                </CardTitle>
+                <CardDescription>Создание и настройка ролей пользователей с различными правами доступа</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RoleManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
