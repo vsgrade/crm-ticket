@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Save, User, Mail, Phone, Shield, Clock, Building2, Star } from "lucide-react";
+import { X, Save, User, Mail, Phone, Shield, Clock, Building2, Star, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +46,11 @@ export const StaffSettingsModal = ({
       email: true,
       sms: false,
       desktop: true
+    },
+    messengerIds: {
+      telegram: "@maria_ivanova",
+      whatsapp: "+7999123456",
+      vk: "maria.ivanova"
     }
   });
 
@@ -129,6 +134,56 @@ export const StaffSettingsModal = ({
                     id="role"
                     value={staffData.role}
                     onChange={(e) => setStaffData(prev => ({ ...prev, role: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Мессенджеры */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                Мессенджеры
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="telegram">Telegram</Label>
+                  <Input
+                    id="telegram"
+                    placeholder="@username или ID"
+                    value={staffData.messengerIds.telegram || ""}
+                    onChange={(e) => setStaffData(prev => ({
+                      ...prev,
+                      messengerIds: { ...prev.messengerIds, telegram: e.target.value }
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="whatsapp">WhatsApp</Label>
+                  <Input
+                    id="whatsapp"
+                    placeholder="+7999123456"
+                    value={staffData.messengerIds.whatsapp || ""}
+                    onChange={(e) => setStaffData(prev => ({
+                      ...prev,
+                      messengerIds: { ...prev.messengerIds, whatsapp: e.target.value }
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="vk">ВКонтакте</Label>
+                  <Input
+                    id="vk"
+                    placeholder="username или ID"
+                    value={staffData.messengerIds.vk || ""}
+                    onChange={(e) => setStaffData(prev => ({
+                      ...prev,
+                      messengerIds: { ...prev.messengerIds, vk: e.target.value }
+                    }))}
                   />
                 </div>
               </div>

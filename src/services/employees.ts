@@ -157,7 +157,8 @@ class EmployeesService {
         ticketsResolved: 0,
         avgResponseTime: 0,
         permissions: employeeData.permissions,
-        customFields: employeeData.customFields || {}
+        customFields: employeeData.customFields || {},
+        messengerIds: {}
       };
 
       savedEmployees.push(newEmployee);

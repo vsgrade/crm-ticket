@@ -1,11 +1,18 @@
+import { useState } from "react";
 import { Zap, Plus, Play, Edit, Trash2, Clock, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { MacroEditorModal } from "@/components/modals/MacroEditorModal";
+import { useToast } from "@/hooks/use-toast";
 
 const Macros = () => {
+  const { toast } = useToast();
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingMacro, setEditingMacro] = useState<any>(null);
+  
   const macros = [
     {
       name: "Стандартное приветствие",
@@ -43,6 +50,23 @@ const Macros = () => {
 
   const categories = ["Все", "Общие", "Эскалация", "Закрытие", "Информация"];
 
+  const handleCreateMacro = () => {
+    setEditingMacro(null);
+    setIsEditorOpen(true);
+  };
+
+  const handleEditMacro = (macro: any) => {
+    setEditingMacro(macro);
+    setIsEditorOpen(true);
+  };
+
+  const handleRunMacro = (macroName: string) => {
+    toast({
+      title: "Макрос выполнен ✅",
+      description: `Макрос "${macroName}" успешно выполнен`,
+    });
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -53,7 +77,7 @@ const Macros = () => {
             <p className="text-muted-foreground">Автоматизация повторяющихся действий</p>
           </div>
         </div>
-        <Button>
+        <Button onClick={handleCreateMacro}>
           <Plus className="h-4 w-4 mr-2" />
           Создать макрос
         </Button>
@@ -174,13 +198,27 @@ const Macros = () => {
                   <TableCell className="text-muted-foreground">{macro.lastUsed}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => handleRunMacro(macro.name)}
+                        title="Выполнить макрос"
+                      >
                         <Play className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleEditMacro(macro)}
+                        title="Редактировать макрос"
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        title="Удалить макрос"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -191,6 +229,12 @@ const Macros = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <MacroEditorModal 
+        open={isEditorOpen}
+        onOpenChange={setIsEditorOpen}
+        macro={editingMacro}
+      />
     </div>
   );
 };

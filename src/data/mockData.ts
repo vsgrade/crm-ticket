@@ -56,6 +56,11 @@ export interface Employee {
   avgResponseTime: number;
   permissions: string[];
   customFields: Record<string, any>;
+  messengerIds: {
+    telegram?: string;
+    whatsapp?: string;
+    vk?: string;
+  };
 }
 
 export interface Department {
@@ -121,7 +126,12 @@ export const mockEmployees: Employee[] = [
     ticketsResolved: 234,
     avgResponseTime: 15,
     permissions: ["tickets.view", "tickets.edit", "kb.create"],
-    customFields: { experience: "3 года", level: "senior" }
+    customFields: { experience: "3 года", level: "senior" },
+    messengerIds: {
+      telegram: "@maria_ivanova",
+      whatsapp: "+7999123456",
+      vk: "maria.ivanova"
+    }
   },
   {
     id: "2",
@@ -135,7 +145,11 @@ export const mockEmployees: Employee[] = [
     ticketsResolved: 156,
     avgResponseTime: 28,
     permissions: ["tickets.view", "tickets.edit"],
-    customFields: { experience: "1 год", level: "junior" }
+    customFields: { experience: "1 год", level: "junior" },
+    messengerIds: {
+      telegram: "@alex_petrov",
+      whatsapp: "+7912876543"
+    }
   }
 ];
 

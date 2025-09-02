@@ -1,11 +1,18 @@
+import { useState } from "react";
 import { FileText, Plus, Edit, Trash2, Copy, Eye, Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TemplateEditorModal } from "@/components/modals/TemplateEditorModal";
+import { useToast } from "@/hooks/use-toast";
 
 const Templates = () => {
+  const { toast } = useToast();
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  
   const templates = [
     {
       name: "Приветствие нового клиента",
@@ -52,6 +59,23 @@ const Templates = () => {
   const categories = ["Все", "Приветствие", "Информация", "Эскалация", "Доставка", "Закрытие"];
   const types = ["Все типы", "Автоответ", "Стандартный", "Внутренний", "Решение"];
 
+  const handleCreateTemplate = () => {
+    setEditingTemplate(null);
+    setIsEditorOpen(true);
+  };
+
+  const handleEditTemplate = (template: any) => {
+    setEditingTemplate(template);
+    setIsEditorOpen(true);
+  };
+
+  const handleCopyTemplate = (templateName: string) => {
+    toast({
+      title: "Шаблон скопирован ✅",
+      description: `Шаблон "${templateName}" скопирован в буфер обмена`,
+    });
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -63,7 +87,7 @@ const Templates = () => {
           </div>
           <Badge variant="secondary">23 шаблона</Badge>
         </div>
-        <Button>
+        <Button onClick={handleCreateTemplate}>
           <Plus className="h-4 w-4 mr-2" />
           Создать шаблон
         </Button>
@@ -162,16 +186,26 @@ const Templates = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1 ml-4">
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" title="Просмотр">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleCopyTemplate(template.name)}
+                          title="Копировать"
+                        >
                           <Copy className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleEditTemplate(template)}
+                          title="Редактировать"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" title="Удалить">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -189,7 +223,11 @@ const Templates = () => {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold text-sm">{template.name}</h3>
-                          <Button size="sm" variant="ghost">
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => handleCopyTemplate(template.name)}
+                          >
                             <Copy className="h-4 w-4" />
                           </Button>
                         </div>
@@ -213,6 +251,12 @@ const Templates = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      <TemplateEditorModal 
+        open={isEditorOpen}
+        onOpenChange={setIsEditorOpen}
+        template={editingTemplate}
+      />
     </div>
   );
 };
