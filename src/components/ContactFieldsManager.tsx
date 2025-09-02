@@ -280,6 +280,25 @@ const ContactFieldsManager = () => {
     'custom': 'Дополнительные поля'
   };
 
+  // Fallback icon resolver to avoid rendering errors when icon from storage is missing
+  const getIconByType = (type: ContactField['type']) => {
+    switch (type) {
+      case 'email':
+        return Mail;
+      case 'phone':
+        return Phone;
+      case 'date':
+        return Calendar;
+      case 'textarea':
+        return MapPin;
+      case 'select':
+        return Settings;
+      case 'text':
+      default:
+        return User;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* System Settings Header */}
@@ -423,7 +442,7 @@ const ContactFieldsManager = () => {
                 <h4 className="font-medium mb-3">{categoryNames[category as keyof typeof categoryNames]}</h4>
                 <div className="space-y-2">
                   {fields.map((field) => {
-                    const IconComponent = field.icon;
+                    const IconComponent = typeof field.icon === 'function' ? field.icon : getIconByType(field.type);
                     return (
                       <div key={field.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center space-x-3">
