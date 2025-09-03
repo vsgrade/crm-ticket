@@ -45,6 +45,7 @@ const navigation = [
       { name: "Сотрудники", href: "/staff", icon: UserCheck, badge: null },
       { name: "Департаменты", href: "/departments", icon: Building2, badge: null },
       { name: "База знаний", href: "/knowledge", icon: BookOpen, badge: "156" },
+      { name: "Начисление ЗП", href: "/payroll", icon: DollarSign, badge: null },
     ]
   },
   {

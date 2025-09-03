@@ -37,6 +37,7 @@ import Notifications from "./pages/Notifications";
 import Omnichannel from "./pages/Omnichannel";
 import Automation from "./pages/Automation";
 import NotFound from "./pages/NotFound";
+import PayrollManagement from "./pages/PayrollManagement";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/omnichannel" element={<Omnichannel />} />
               <Route path="/automation" element={<Automation />} />
+              <Route path="/payroll" element={<PayrollManagement />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
